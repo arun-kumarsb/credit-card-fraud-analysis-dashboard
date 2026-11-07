@@ -30,20 +30,32 @@ export interface TransactionFilterParams {
 
 export const api = {
   // Dashboard Endpoints
-  getOverview: async (): Promise<DashboardOverviewResponse> => {
-    const res = await fetch(`${API_BASE}/dashboard/overview`);
+  getOverview: async (startDate?: string, endDate?: string): Promise<DashboardOverviewResponse> => {
+    const params = new URLSearchParams();
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    const res = await fetch(`${API_BASE}/dashboard/overview${qs}`);
     if (!res.ok) throw new Error(`Failed to load overview: ${res.statusText}`);
     return res.json();
   },
 
-  getTrends: async (): Promise<DashboardTrendsResponse> => {
-    const res = await fetch(`${API_BASE}/dashboard/trends`);
+  getTrends: async (startDate?: string, endDate?: string): Promise<DashboardTrendsResponse> => {
+    const params = new URLSearchParams();
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    const res = await fetch(`${API_BASE}/dashboard/trends${qs}`);
     if (!res.ok) throw new Error(`Failed to load trends: ${res.statusText}`);
     return res.json();
   },
 
-  getDistributions: async (): Promise<DashboardDistributionsResponse> => {
-    const res = await fetch(`${API_BASE}/dashboard/distributions`);
+  getDistributions: async (startDate?: string, endDate?: string): Promise<DashboardDistributionsResponse> => {
+    const params = new URLSearchParams();
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    const res = await fetch(`${API_BASE}/dashboard/distributions${qs}`);
     if (!res.ok) throw new Error(`Failed to load distributions: ${res.statusText}`);
     return res.json();
   },

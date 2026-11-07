@@ -4,9 +4,6 @@ import {
   Area,
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -19,23 +16,38 @@ import {
   AlertTriangle,
   Activity,
   CreditCard,
-  ShieldAlert,
-  Calendar,
-  Layers,
-  MapPin
+  ShieldCheck,
+  Calendar
 } from 'lucide-react';
 import { api } from '../services/api';
 import {
   DashboardOverviewResponse,
-  DashboardTrendsResponse
+  DashboardTrendsResponse,
+  DashboardDistributionsResponse
 } from '../types/api';
 import { KPICard } from '../components/common/KPICard';
 import { ChartCard } from '../components/common/ChartCard';
 import { LoadingSkeleton, ErrorState } from '../components/common/LoadingSkeleton';
+import { SemicircularGauge } from '../components/dashboard/SemicircularGauge';
+import { TemporalAnomalyHeatmap } from '../components/dashboard/TemporalAnomalyHeatmap';
+import { CustomerSegmentDonut } from '../components/dashboard/CustomerSegmentDonut';
+import { StateFraudDensity } from '../components/dashboard/StateFraudDensity';
+import { ContextualAlerts } from '../components/dashboard/ContextualAlerts';
 
-export const ExecutiveOverviewPage: React.FC = () => {
+interface ExecutiveOverviewPageProps {
+  startDate?: string;
+  endDate?: string;
+  currencyPrefix?: string;
+}
+
+export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
+  startDate,
+  endDate,
+  currencyPrefix = '$'
+}) => {
   const [overview, setOverview] = useState<DashboardOverviewResponse | null>(null);
   const [trends, setTrends] = useState<DashboardTrendsResponse | null>(null);
+  const [distributions, setDistributions] = useState<DashboardDistributionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,12 +55,14 @@ export const ExecutiveOverviewPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const [ovData, trData] = await Promise.all([
-        api.getOverview(),
-        api.getTrends(),
+      const [ovData, trData, distData] = await Promise.all([
+        api.getOverview(startDate, endDate),
+        api.getTrends(startDate, endDate),
+        api.getDistributions(startDate, endDate),
       ]);
       setOverview(ovData);
       setTrends(trData);
+      setDistributions(distData);
     } catch (err: any) {
       setError(err.message || 'Failed to load executive overview data');
     } finally {
@@ -58,71 +72,79 @@ export const ExecutiveOverviewPage: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) return <LoadingSkeleton />;
   if (error) return <ErrorState message={error} onRetry={fetchData} />;
-  if (!overview || !trends) return null;
+  if (!overview || !trends || !distributions) return null;
 
   const { kpis, fraud_loss_share, customer_segments, top_categories } = overview;
 
-  // Donut data for Loss Share
-  const lossDonutData = [
-    { name: 'Legitimate Volume', value: fraud_loss_share.legit_volume_amount, pct: fraud_loss_share.legit_volume_pct, color: '#10B981' },
-    { name: 'Fraud Loss', value: fraud_loss_share.fraud_loss_amount, pct: fraud_loss_share.fraud_volume_pct, color: '#EF4444' }
-  ];
-
-  // Format currency helpers
+  // Currency Formatter
   const fmtCurrency = (val: number) => {
-    if (val >= 1e9) return `$${(val / 1e9).toFixed(2)}B`;
-    if (val >= 1e6) return `$${(val / 1e6).toFixed(2)}M`;
-    if (val >= 1e3) return `$${(val / 1e3).toFixed(1)}k`;
-    return `$${val.toFixed(2)}`;
+    if (val >= 1e9) return `${currencyPrefix}${(val / 1e9).toFixed(2)}B`;
+    if (val >= 1e6) return `${currencyPrefix}${(val / 1e6).toFixed(2)}M`;
+    if (val >= 1e3) return `${currencyPrefix}${(val / 1e3).toFixed(1)}k`;
+    return `${currencyPrefix}${val.toFixed(2)}`;
   };
 
   return (
     <div className="space-y-6">
-      {/* 4 Top KPI Cards */}
+      {/* Active Filter Scope Tag (if filtered) */}
+      {(startDate || endDate) && (
+        <div className="flex items-center justify-between p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs text-primary">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            <span className="font-semibold">Filtered Analysis Window:</span>
+            <span className="font-mono">{startDate || 'Start'} to {endDate || 'End'}</span>
+          </div>
+          <span className="text-[11px] font-bold bg-white px-2 py-0.5 rounded-full border border-primary/30">
+            {kpis.total_transactions.toLocaleString()} Filtered Txns
+          </span>
+        </div>
+      )}
+
+      {/* 1. TOP 4 EXECUTIVE KPI CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Gross Transaction Volume"
           value={fmtCurrency(kpis.total_volume_amount)}
-          subtitle="250,000 Verified Transactions"
-          badge={{ text: '2023 - 2026', variant: 'primary' }}
+          subtitle={`${kpis.total_transactions.toLocaleString()} Verified Transactions`}
+          badge={{ text: startDate || endDate ? 'Filtered' : '2023 - 2026', variant: 'primary' }}
           icon={<DollarSign className="w-5 h-5 text-primary" />}
         />
         <KPICard
           title="Total Fraud Loss"
           value={fmtCurrency(kpis.fraud_volume_amount)}
-          subtitle="25.34% of Gross Value"
+          subtitle={`${kpis.fraud_value_rate_pct.toFixed(2)}% of Gross Value`}
           badge={{ text: 'High Impact', variant: 'danger' }}
-          icon={<AlertTriangle className="w-5 h-5 text-danger" />}
+          icon={<AlertTriangle className="w-5 h-5 text-red-600" />}
         />
         <KPICard
           title="Fraud Incident Rate"
-          value={`${kpis.fraud_rate_pct}%`}
+          value={`${kpis.fraud_rate_pct.toFixed(2)}%`}
           subtitle={`${kpis.fraud_transactions.toLocaleString()} Flagged Events`}
           badge={{ text: 'Attack Density', variant: 'warning' }}
-          icon={<Activity className="w-5 h-5 text-warning" />}
+          icon={<Activity className="w-5 h-5 text-amber-500" />}
         />
         <KPICard
           title="Avg Fraud Amount"
-          value={`$${kpis.avg_fraud_amount.toLocaleString()}`}
-          subtitle={`6× Higher than Legit ($${kpis.avg_legit_amount.toLocaleString()})`}
+          value={fmtCurrency(kpis.avg_fraud_amount)}
+          subtitle={`6× Higher than Legit (${fmtCurrency(kpis.avg_legit_amount)})`}
           badge={{ text: 'Outlier Severity', variant: 'danger' }}
           icon={<CreditCard className="w-5 h-5 text-indigo-600" />}
         />
       </div>
 
-      {/* Primary Analytics Grid: 3-Year Trend & Loss Share Donut */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 3-Year Trend Line Chart (spans 2 columns) */}
+      {/* 2. PRIMARY ROW: 3-YEAR TREND & SEMICIRCULAR OVERALL FRAUD LOSS GAUGE */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        {/* 3-Year Gross Volume vs Fraud Loss Area Chart (spans 2 columns) */}
         <ChartCard
           title="3-Year Gross Volume vs. Fraud Loss"
-          subtitle="Monthly financial progression across 2023–2026 (in Millions USD)"
+          subtitle="Monthly financial progression across 2023–2026 with peak anomaly crest"
           className="lg:col-span-2"
         >
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={320}>
             <AreaChart data={trends.monthly_trends}>
               <defs>
                 <linearGradient id="volGrad" x1="0" y1="0" x2="0" y2="1">
@@ -136,10 +158,10 @@ export const ExecutiveOverviewPage: React.FC = () => {
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
               <XAxis dataKey="Year_Month" tick={{ fontSize: 10, fill: '#64748B' }} interval={3} />
-              <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => `$${(v / 1e6).toFixed(0)}M`} />
+              <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => fmtCurrency(v)} />
               <Tooltip
                 formatter={(val: any, name: any) => [
-                  `$${Number(val).toLocaleString()}`,
+                  fmtCurrency(Number(val)),
                   name === 'total_amount' ? 'Gross Volume' : 'Fraud Loss',
                 ]}
                 labelFormatter={(lbl) => `Month: ${lbl}`}
@@ -152,69 +174,53 @@ export const ExecutiveOverviewPage: React.FC = () => {
           </ResponsiveContainer>
         </ChartCard>
 
-        {/* Fraud Loss Share Donut */}
-        <ChartCard
-          title="Overall Fraud Loss Share"
-          subtitle="Financial damage vs transaction event ratio"
-        >
-          <div className="flex flex-col items-center justify-center h-full">
-            <ResponsiveContainer width="100%" height={210}>
-              <PieChart>
-                <Pie
-                  data={lossDonutData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={80}
-                  paddingAngle={4}
-                  dataKey="value"
-                >
-                  {lossDonutData.map((entry, idx) => (
-                    <Cell key={`cell-${idx}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(val: any) => [`$${Number(val).toLocaleString()}`, 'Amount']}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-
-            <div className="w-full space-y-2 mt-2 px-2 text-xs">
-              <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-hairline">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
-                  <span className="font-medium text-slate-heading">Legitimate ({fraud_loss_share.legit_volume_pct}%)</span>
-                </div>
-                <span className="font-bold text-slate-heading tabular-nums">{fmtCurrency(fraud_loss_share.legit_volume_amount)}</span>
-              </div>
-              <div className="flex items-center justify-between p-2 rounded-xl bg-danger-light border border-danger/20">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-danger"></span>
-                  <span className="font-bold text-danger-dark">Fraud Loss ({fraud_loss_share.fraud_volume_pct}%)</span>
-                </div>
-                <span className="font-bold text-danger-dark tabular-nums">{fmtCurrency(fraud_loss_share.fraud_loss_amount)}</span>
-              </div>
-            </div>
-          </div>
-        </ChartCard>
+        {/* Semicircular Overall Fraud Loss Gauge (spans 1 column) */}
+        <div>
+          <SemicircularGauge
+            fraudPct={fraud_loss_share.fraud_volume_pct}
+            legitPct={fraud_loss_share.legit_volume_pct}
+            fraudAmount={fraud_loss_share.fraud_loss_amount}
+            legitAmount={fraud_loss_share.legit_volume_amount}
+            fraudIncidents={kpis.fraud_transactions}
+            totalTransactions={kpis.total_transactions}
+            currencyPrefix={currencyPrefix}
+          />
+        </div>
       </div>
 
-      {/* Secondary Analytics Grid: Customer Segment Exposure & Top Category Impact */}
+      {/* 3. MISSING STITCH VISUALIZATIONS ROW (3 EQUAL COLUMNS) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+        {/* Card 1: Temporal Anomaly Matrix (Heatmap) */}
+        <TemporalAnomalyHeatmap data={trends.temporal_heatmap} />
+
+        {/* Card 2: Customer Segment Exposure Donut */}
+        <CustomerSegmentDonut
+          segments={customer_segments}
+          currencyPrefix={currencyPrefix}
+        />
+
+        {/* Card 3: State Fraud Density (India Matrix & Top 5 States) */}
+        <StateFraudDensity
+          states={distributions.state_density}
+          currencyPrefix={currencyPrefix}
+        />
+      </div>
+
+      {/* 4. DEEP-DIVE PORTFOLIO DISTRIBUTIONS (2 EQUAL COLUMNS) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Customer Segment Exposure */}
+        {/* Grouped Bar Chart: Customer Segment Volume vs Loss */}
         <ChartCard
-          title="Customer Segment Exposure"
-          subtitle="Total volume and fraud losses across tiers (Platinum, Gold, Standard, Basic)"
+          title="Customer Segment Volume vs. Loss Comparison"
+          subtitle="Total volume and net fraud losses across portfolio tiers"
         >
-          <ResponsiveContainer width="100%" height={260}>
+          <ResponsiveContainer width="100%" height={270}>
             <BarChart data={customer_segments}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
               <XAxis dataKey="Customer_Segment" tick={{ fontSize: 11, fill: '#64748B' }} />
-              <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => `$${(v / 1e6).toFixed(0)}M`} />
+              <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => fmtCurrency(v)} />
               <Tooltip
                 formatter={(val: any, name: any) => [
-                  `$${Number(val).toLocaleString()}`,
+                  fmtCurrency(Number(val)),
                   name === 'total_amount' ? 'Total Volume' : 'Fraud Loss',
                 ]}
                 contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
@@ -226,22 +232,22 @@ export const ExecutiveOverviewPage: React.FC = () => {
           </ResponsiveContainer>
         </ChartCard>
 
-        {/* Top At-Risk Merchant Categories */}
+        {/* Horizontal Bar Chart: Top 8 Targeted Merchant Categories */}
         <ChartCard
           title="Top 8 Targeted Merchant Categories"
-          subtitle="Ranked by total financial fraud loss (in Millions USD)"
+          subtitle="Ranked by total financial fraud loss across MCC clusters"
         >
-          <ResponsiveContainer width="100%" height={260}>
+          <ResponsiveContainer width="100%" height={270}>
             <BarChart
               data={top_categories}
               layout="vertical"
               margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-              <XAxis type="number" tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => `$${(v / 1e6).toFixed(0)}M`} />
+              <XAxis type="number" tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => fmtCurrency(v)} />
               <YAxis type="category" dataKey="Merchant_Category" tick={{ fontSize: 10, fill: '#0F172A' }} />
               <Tooltip
-                formatter={(val: any) => [`$${Number(val).toLocaleString()}`, 'Fraud Loss']}
+                formatter={(val: any) => [fmtCurrency(Number(val)), 'Fraud Loss']}
                 contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
               />
               <Bar dataKey="fraud_amount" name="Fraud Loss" fill="#BA1A1A" radius={[0, 6, 6, 0]} />
@@ -250,27 +256,12 @@ export const ExecutiveOverviewPage: React.FC = () => {
         </ChartCard>
       </div>
 
-      {/* Forensic Intelligence Highlights */}
-      <div className="bg-surface rounded-2xl p-6 border border-slate-hairline shadow-ambient">
-        <h4 className="text-base font-bold text-slate-heading mb-3 flex items-center gap-2">
-          <ShieldAlert className="w-5 h-5 text-danger" />
-          Empirical Data Visualizations & Statistical Observations
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-body">
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-hairline">
-            <span className="font-bold text-slate-heading block mb-1">Financial Damage Asymmetry</span>
-            Fraud represents only <strong>5.39%</strong> of transaction counts but accounts for <strong>25.34% ($1.05 Billion)</strong> of total capital lost. High-limit transactions drive outsized risk exposure.
-          </div>
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-hairline">
-            <span className="font-bold text-slate-heading block mb-1">Temporal Attack Clustering</span>
-            Fraud incident density spikes significantly during late-night and pre-dawn hours (<strong>00:00 to 05:00</strong>), exceeding a <strong>12% incident rate</strong> compared to 3.8% daytime baseline.
-          </div>
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-hairline">
-            <span className="font-bold text-slate-heading block mb-1">Category Concentration</span>
-            High-velocity sectors such as <strong>Hotels, Fashion, Fuel, and Travel</strong> represent the top target vectors, accumulating over <strong>$500M</strong> in combined fraud loss.
-          </div>
-        </div>
-      </div>
+      {/* 5. CONTEXTUAL ANALYTICAL ALERTS */}
+      <ContextualAlerts
+        fraudLossAmount={fraud_loss_share.fraud_loss_amount}
+        fraudLossPct={fraud_loss_share.fraud_volume_pct}
+        currencyPrefix={currencyPrefix}
+      />
     </div>
   );
 };

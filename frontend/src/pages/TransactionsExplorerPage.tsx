@@ -34,7 +34,13 @@ import { StatusBadge } from '../components/common/StatusBadge';
 import { LoadingSkeleton, ErrorState } from '../components/common/LoadingSkeleton';
 import { TransactionDetailDrawer } from '../components/transactions/TransactionDetailDrawer';
 
-export const TransactionsExplorerPage: React.FC = () => {
+interface TransactionsExplorerPageProps {
+  initialSearch?: string;
+}
+
+export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> = ({
+  initialSearch = ''
+}) => {
   const [data, setData] = useState<PaginatedTransactionsResponse | null>(null);
   const [distributions, setDistributions] = useState<DashboardDistributionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +53,7 @@ export const TransactionsExplorerPage: React.FC = () => {
   // Filter & Pagination States
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(initialSearch);
   const [fraudFlag, setFraudFlag] = useState<number>(-1); // -1: All, 1: Fraud, 0: Legit
   const [category, setCategory] = useState('All');
   const [paymentMethod, setPaymentMethod] = useState('All');

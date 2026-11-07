@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sidebar } from './components/layout/Sidebar';
-import { Header } from './components/layout/Header';
+import { Header, DateRangeOption, DATE_RANGES } from './components/layout/Header';
 import { ExecutiveOverviewPage } from './pages/ExecutiveOverviewPage';
 import { TransactionsExplorerPage } from './pages/TransactionsExplorerPage';
 import { CustomerAnalyticsPage } from './pages/CustomerAnalyticsPage';
@@ -13,11 +13,23 @@ export function App() {
   const [currentTab, setCurrentTab] = useState<string>('overview');
   const [refreshKey, setRefreshKey] = useState<number>(0);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [selectedRange, setSelectedRange] = useState<DateRangeOption>(DATE_RANGES[0]);
+  const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('');
 
   const handleRefresh = () => {
     setIsRefreshing(true);
     setRefreshKey((prev) => prev + 1);
     setTimeout(() => setIsRefreshing(false), 500);
+  };
+
+  const handleDateRangeChange = (range: DateRangeOption) => {
+    setSelectedRange(range);
+    setRefreshKey((prev) => prev + 1);
+  };
+
+  const handleSearchSubmit = (query: string) => {
+    setGlobalSearchQuery(query);
+    setCurrentTab('transactions');
   };
 
   const getPageMeta = (tab: string) => {
@@ -70,9 +82,20 @@ export function App() {
   const renderContent = () => {
     switch (currentTab) {
       case 'overview':
-        return <ExecutiveOverviewPage key={refreshKey} />;
+        return (
+          <ExecutiveOverviewPage
+            key={refreshKey}
+            startDate={selectedRange.startDate}
+            endDate={selectedRange.endDate}
+          />
+        );
       case 'transactions':
-        return <TransactionsExplorerPage key={refreshKey} />;
+        return (
+          <TransactionsExplorerPage
+            key={refreshKey}
+            initialSearch={globalSearchQuery}
+          />
+        );
       case 'customers':
         return <CustomerAnalyticsPage key={refreshKey} />;
       case 'cards':
@@ -84,7 +107,13 @@ export function App() {
       case 'quality':
         return <DataQualityPage key={refreshKey} />;
       default:
-        return <ExecutiveOverviewPage key={refreshKey} />;
+        return (
+          <ExecutiveOverviewPage
+            key={refreshKey}
+            startDate={selectedRange.startDate}
+            endDate={selectedRange.endDate}
+          />
+        );
     }
   };
 
@@ -100,6 +129,9 @@ export function App() {
           subtitle={meta.subtitle}
           onRefresh={handleRefresh}
           isRefreshing={isRefreshing}
+          selectedRangeId={selectedRange.id}
+          onDateRangeChange={handleDateRangeChange}
+          onSearchSubmit={handleSearchSubmit}
         />
 
         <main className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
