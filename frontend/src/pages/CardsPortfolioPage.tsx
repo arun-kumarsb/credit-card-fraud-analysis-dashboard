@@ -26,7 +26,15 @@ import { KPICard } from '../components/common/KPICard';
 import { ChartCard } from '../components/common/ChartCard';
 import { LoadingSkeleton, ErrorState } from '../components/common/LoadingSkeleton';
 
-export const CardsPortfolioPage: React.FC = () => {
+interface CardsPortfolioPageProps {
+  startDate?: string;
+  endDate?: string;
+}
+
+export const CardsPortfolioPage: React.FC<CardsPortfolioPageProps> = ({
+  startDate,
+  endDate
+}) => {
   const [data, setData] = useState<CardAnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +43,7 @@ export const CardsPortfolioPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await api.getCardAnalytics();
+      const res = await api.getCardAnalytics(startDate, endDate);
       setData(res);
     } catch (err: any) {
       setError(err.message || 'Failed to load card portfolio analytics');
@@ -46,7 +54,7 @@ export const CardsPortfolioPage: React.FC = () => {
 
   useEffect(() => {
     fetchCardAnalytics();
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) return <LoadingSkeleton />;
   if (error) return <ErrorState message={error} onRetry={fetchCardAnalytics} />;

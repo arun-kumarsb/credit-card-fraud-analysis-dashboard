@@ -30,6 +30,7 @@ export function App() {
   const handleSearchSubmit = (query: string) => {
     setGlobalSearchQuery(query);
     setCurrentTab('transactions');
+    setRefreshKey((prev) => prev + 1);
   };
 
   const getPageMeta = (tab: string) => {
@@ -94,14 +95,34 @@ export function App() {
           <TransactionsExplorerPage
             key={refreshKey}
             initialSearch={globalSearchQuery}
+            startDate={selectedRange.startDate}
+            endDate={selectedRange.endDate}
           />
         );
       case 'customers':
-        return <CustomerAnalyticsPage key={refreshKey} />;
+        return (
+          <CustomerAnalyticsPage
+            key={refreshKey}
+            startDate={selectedRange.startDate}
+            endDate={selectedRange.endDate}
+          />
+        );
       case 'cards':
-        return <CardsPortfolioPage key={refreshKey} />;
+        return (
+          <CardsPortfolioPage
+            key={refreshKey}
+            startDate={selectedRange.startDate}
+            endDate={selectedRange.endDate}
+          />
+        );
       case 'merchants':
-        return <MerchantEcosystemPage key={refreshKey} />;
+        return (
+          <MerchantEcosystemPage
+            key={refreshKey}
+            startDate={selectedRange.startDate}
+            endDate={selectedRange.endDate}
+          />
+        );
       case 'predictor':
         return <MLPredictorPage key={refreshKey} />;
       case 'quality':

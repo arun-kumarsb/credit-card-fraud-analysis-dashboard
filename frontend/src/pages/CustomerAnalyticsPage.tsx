@@ -21,7 +21,15 @@ import { KPICard } from '../components/common/KPICard';
 import { ChartCard } from '../components/common/ChartCard';
 import { LoadingSkeleton, ErrorState } from '../components/common/LoadingSkeleton';
 
-export const CustomerAnalyticsPage: React.FC = () => {
+interface CustomerAnalyticsPageProps {
+  startDate?: string;
+  endDate?: string;
+}
+
+export const CustomerAnalyticsPage: React.FC<CustomerAnalyticsPageProps> = ({
+  startDate,
+  endDate
+}) => {
   const [data, setData] = useState<CustomerAnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +38,7 @@ export const CustomerAnalyticsPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await api.getCustomerAnalytics();
+      const res = await api.getCustomerAnalytics(startDate, endDate);
       setData(res);
     } catch (err: any) {
       setError(err.message || 'Failed to load customer analytics');
@@ -41,7 +49,7 @@ export const CustomerAnalyticsPage: React.FC = () => {
 
   useEffect(() => {
     fetchCustomerAnalytics();
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) return <LoadingSkeleton />;
   if (error) return <ErrorState message={error} onRetry={fetchCustomerAnalytics} />;

@@ -164,9 +164,9 @@ class DashboardService:
             monthly_rows = db.execute(text(f"""
                 SELECT 
                     strftime('%Y-%m', transaction_date) as Year_Month,
-                    COUNT(*) as total_transactions,
+                    COUNT(*) as total_txns,
                     ROUND(COALESCE(SUM(transaction_amount), 0), 2) as total_amount,
-                    SUM(CASE WHEN fraud_flag = 1 THEN 1 ELSE 0 END) as fraud_transactions,
+                    SUM(CASE WHEN fraud_flag = 1 THEN 1 ELSE 0 END) as fraud_txns,
                     ROUND(COALESCE(SUM(CASE WHEN fraud_flag = 1 THEN transaction_amount ELSE 0 END), 0), 2) as fraud_amount,
                     ROUND(100.0 * SUM(CASE WHEN fraud_flag = 1 THEN 1 ELSE 0 END) / COUNT(*), 2) as fraud_rate_pct
                 FROM transactions
@@ -221,16 +221,22 @@ class DashboardService:
                 params["end_date"] = end_date
             where_sql = " AND ".join(where_clauses)
 
+            total_fraud_count = db.execute(text(f"""
+                SELECT COUNT(*) FROM transactions WHERE {where_sql} AND fraud_flag = 1;
+            """), params).scalar() or 1
+
             pareto_rows = db.execute(text(f"""
                 SELECT 
                     fraud_reason as Fraud_Reason,
-                    COUNT(*) as incident_count,
-                    ROUND(COALESCE(SUM(transaction_amount), 0), 2) as total_loss
+                    COUNT(*) as fraud_count,
+                    ROUND(COALESCE(SUM(transaction_amount), 0), 2) as fraud_amount,
+                    ROUND(COALESCE(AVG(transaction_amount), 0), 2) as avg_amount,
+                    ROUND(100.0 * COUNT(*) / :total_fraud, 2) as pct_of_total_fraud
                 FROM transactions
                 WHERE {where_sql} AND fraud_flag = 1
                 GROUP BY fraud_reason
-                ORDER BY incident_count DESC;
-            """), params).mappings().all()
+                ORDER BY fraud_count DESC;
+            """), {**params, "total_fraud": total_fraud_count}).mappings().all()
             pareto = [dict(r) for r in pareto_rows]
 
             rails_rows = db.execute(text(f"""

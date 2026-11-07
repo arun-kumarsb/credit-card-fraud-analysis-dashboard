@@ -36,10 +36,14 @@ import { TransactionDetailDrawer } from '../components/transactions/TransactionD
 
 interface TransactionsExplorerPageProps {
   initialSearch?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> = ({
-  initialSearch = ''
+  initialSearch = '',
+  startDate,
+  endDate
 }) => {
   const [data, setData] = useState<PaginatedTransactionsResponse | null>(null);
   const [distributions, setDistributions] = useState<DashboardDistributionsResponse | null>(null);
@@ -64,6 +68,14 @@ export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> =
   const [sortOrder, setSortOrder] = useState('desc');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
+  // Sync initialSearch when search prop changes from global Header
+  useEffect(() => {
+    if (initialSearch !== undefined) {
+      setSearch(initialSearch);
+      setPage(1);
+    }
+  }, [initialSearch]);
+
   const fetchTransactions = async () => {
     try {
       setLoading(true);
@@ -77,6 +89,8 @@ export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> =
         category: category !== 'All' ? category : undefined,
         payment_method: paymentMethod !== 'All' ? paymentMethod : undefined,
         status: status !== 'All' ? status : undefined,
+        date_from: startDate || undefined,
+        date_to: endDate || undefined,
         min_amount: minAmount ? parseFloat(minAmount) : undefined,
         max_amount: maxAmount ? parseFloat(maxAmount) : undefined,
         sort_by: sortBy,
@@ -85,11 +99,11 @@ export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> =
 
       const [resTxn, resDist] = await Promise.all([
         api.getTransactions(params),
-        distributions ? Promise.resolve(distributions) : api.getDistributions(),
+        api.getDistributions(startDate, endDate),
       ]);
 
       setData(resTxn);
-      if (!distributions) setDistributions(resDist);
+      setDistributions(resDist);
     } catch (err: any) {
       setError(err.message || 'Failed to load transaction ledger stream');
     } finally {
@@ -99,7 +113,7 @@ export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> =
 
   useEffect(() => {
     fetchTransactions();
-  }, [page, pageSize, fraudFlag, category, paymentMethod, status, sortBy, sortOrder]);
+  }, [page, pageSize, search, fraudFlag, category, paymentMethod, status, sortBy, sortOrder, startDate, endDate]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -24,7 +24,15 @@ import { ChartCard } from '../components/common/ChartCard';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { LoadingSkeleton, ErrorState } from '../components/common/LoadingSkeleton';
 
-export const MerchantEcosystemPage: React.FC = () => {
+interface MerchantEcosystemPageProps {
+  startDate?: string;
+  endDate?: string;
+}
+
+export const MerchantEcosystemPage: React.FC<MerchantEcosystemPageProps> = ({
+  startDate,
+  endDate
+}) => {
   const [data, setData] = useState<MerchantAnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +41,7 @@ export const MerchantEcosystemPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await api.getMerchantAnalytics();
+      const res = await api.getMerchantAnalytics(startDate, endDate);
       setData(res);
     } catch (err: any) {
       setError(err.message || 'Failed to load merchant ecosystem analytics');
@@ -44,7 +52,7 @@ export const MerchantEcosystemPage: React.FC = () => {
 
   useEffect(() => {
     fetchMerchantAnalytics();
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) return <LoadingSkeleton />;
   if (error) return <ErrorState message={error} onRetry={fetchMerchantAnalytics} />;

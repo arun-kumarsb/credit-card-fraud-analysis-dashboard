@@ -104,20 +104,32 @@ export const api = {
   },
 
   // Analytics Endpoints
-  getCustomerAnalytics: async (): Promise<CustomerAnalyticsResponse> => {
-    const res = await fetch(`${API_BASE}/customers/analytics`);
+  getCustomerAnalytics: async (startDate?: string, endDate?: string): Promise<CustomerAnalyticsResponse> => {
+    const params = new URLSearchParams();
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    const res = await fetch(`${API_BASE}/customers/analytics${qs}`);
     if (!res.ok) throw new Error(`Failed to load customer analytics: ${res.statusText}`);
     return res.json();
   },
 
-  getCardAnalytics: async (): Promise<CardAnalyticsResponse> => {
-    const res = await fetch(`${API_BASE}/cards/analytics`);
+  getCardAnalytics: async (startDate?: string, endDate?: string): Promise<CardAnalyticsResponse> => {
+    const params = new URLSearchParams();
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    const res = await fetch(`${API_BASE}/cards/analytics${qs}`);
     if (!res.ok) throw new Error(`Failed to load card analytics: ${res.statusText}`);
     return res.json();
   },
 
-  getMerchantAnalytics: async (): Promise<MerchantAnalyticsResponse> => {
-    const res = await fetch(`${API_BASE}/merchants/analytics`);
+  getMerchantAnalytics: async (startDate?: string, endDate?: string): Promise<MerchantAnalyticsResponse> => {
+    const params = new URLSearchParams();
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    const res = await fetch(`${API_BASE}/merchants/analytics${qs}`);
     if (!res.ok) throw new Error(`Failed to load merchant analytics: ${res.statusText}`);
     return res.json();
   },

@@ -54,8 +54,9 @@ export const Header: React.FC<HeaderProps> = ({
   const dateRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const exportRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Close dropdowns on click outside
+  // Close dropdowns on click outside & listen for Cmd+K / Ctrl+K
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dateRef.current && !dateRef.current.contains(e.target as Node)) {
@@ -68,14 +69,27 @@ export const Header: React.FC<HeaderProps> = ({
         setExportOpen(false);
       }
     };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const currentRange = DATE_RANGES.find((r) => r.id === selectedRangeId) || DATE_RANGES[0];
 
-  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchQuery.trim() && onSearchSubmit) {
+  const handleSearchFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim() && onSearchSubmit) {
       onSearchSubmit(searchQuery.trim());
     }
   };
@@ -121,30 +135,45 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Center Controls: Global Search & Date Range */}
       <div className="flex-1 max-w-xl flex items-center gap-3">
-        {/* Global Search Input */}
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        {/* Global Search Form */}
+        <form onSubmit={handleSearchFormSubmit} className="relative flex-1">
+          <button
+            type="submit"
+            title="Search"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors focus:outline-none"
+          >
+            <Search className="w-4 h-4" />
+          </button>
           <input
+            ref={searchInputRef}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleSearchKeyPress}
-            placeholder="Search txn ID, card, customer..."
-            className="w-full h-9 pl-9 pr-12 rounded-xl border border-slate-hairline bg-slate-50 text-xs text-slate-heading placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-primary transition-all"
+            placeholder="Search txn ID, card, customer, city..."
+            className="w-full h-9 pl-9 pr-14 rounded-xl border border-slate-hairline bg-slate-50 text-xs text-slate-heading placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-primary transition-all"
           />
           {searchQuery ? (
             <button
-              onClick={() => setSearchQuery('')}
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                if (onSearchSubmit) onSearchSubmit('');
+              }}
+              title="Clear search"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           ) : (
-            <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-slate-200/60 text-[10px] font-mono text-slate-500">
+            <button
+              type="submit"
+              title="Press Enter to search"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-slate-200/60 hover:bg-primary hover:text-white text-[10px] font-mono text-slate-500 transition-colors"
+            >
               ⌘K
-            </kbd>
+            </button>
           )}
-        </div>
+        </form>
 
         {/* Date Range Selector Dropdown */}
         <div className="relative" ref={dateRef}>

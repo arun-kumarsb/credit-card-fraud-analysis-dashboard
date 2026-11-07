@@ -37,7 +37,7 @@ class TransactionService:
 
         if search and search.strip():
             s = f"%{search.strip()}%"
-            where_clauses.append("(transaction_id LIKE :search OR customer_id LIKE :search OR card_id LIKE :search OR merchant_id LIKE :search)")
+            where_clauses.append("(transaction_id LIKE :search OR customer_id LIKE :search OR card_id LIKE :search OR merchant_id LIKE :search OR merchant_category LIKE :search OR customer_city LIKE :search OR customer_state LIKE :search OR fraud_reason LIKE :search)")
             params["search"] = s
 
         if fraud_flag is not None:
