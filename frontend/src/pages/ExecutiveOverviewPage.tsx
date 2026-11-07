@@ -29,6 +29,7 @@ import { KPICard } from '../components/common/KPICard';
 import { ChartCard } from '../components/common/ChartCard';
 import { LoadingSkeleton, ErrorState } from '../components/common/LoadingSkeleton';
 import { SemicircularGauge } from '../components/dashboard/SemicircularGauge';
+import { MacroVolumeTrendChart } from '../components/dashboard/MacroVolumeTrendChart';
 import { TemporalAnomalyHeatmap } from '../components/dashboard/TemporalAnomalyHeatmap';
 import { CustomerSegmentDonut } from '../components/dashboard/CustomerSegmentDonut';
 import { StateFraudDensity } from '../components/dashboard/StateFraudDensity';
@@ -155,41 +156,15 @@ export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
 
       {/* 2. PRIMARY ROW: 3-YEAR TREND & SEMICIRCULAR OVERALL FRAUD LOSS GAUGE */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-        {/* 3-Year Gross Volume vs Fraud Loss Area Chart (spans 2 columns) */}
-        <ChartCard
-          title="3-Year Gross Volume vs. Fraud Loss"
-          subtitle="Monthly financial progression across 2023–2026 with peak anomaly crest"
-          className="lg:col-span-2"
-        >
-          <ResponsiveContainer width="100%" height={320}>
-            <AreaChart data={trends.monthly_trends}>
-              <defs>
-                <linearGradient id="volGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2563EB" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#2563EB" stopOpacity={0.0} />
-                </linearGradient>
-                <linearGradient id="fraudGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#EF4444" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#EF4444" stopOpacity={0.0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-              <XAxis dataKey="Year_Month" tick={{ fontSize: 10, fill: '#64748B' }} interval={3} />
-              <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => fmtCurrency(v)} />
-              <Tooltip
-                formatter={(val: any, name: any) => [
-                  fmtCurrency(Number(val)),
-                  name === 'total_amount' ? 'Gross Volume' : 'Fraud Loss',
-                ]}
-                labelFormatter={(lbl) => `Month: ${lbl}`}
-                contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-              />
-              <Legend verticalAlign="top" height={36} iconType="circle" />
-              <Area type="monotone" dataKey="total_amount" name="Gross Volume" stroke="#2563EB" strokeWidth={2.5} fillOpacity={1} fill="url(#volGrad)" />
-              <Area type="monotone" dataKey="fraud_amount" name="Fraud Loss" stroke="#EF4444" strokeWidth={2.5} fillOpacity={1} fill="url(#fraudGrad)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </ChartCard>
+        {/* 3-Year Gross Volume vs Fraud Loss Spline Chart from Stitch Reference (spans 2 columns) */}
+        <div className="lg:col-span-2">
+          <MacroVolumeTrendChart
+            monthlyData={trends.monthly_trends}
+            totalGross={kpis.total_volume_amount}
+            totalFraud={kpis.fraud_volume_amount}
+            currencyPrefix={currencyPrefix}
+          />
+        </div>
 
         {/* Semicircular Overall Fraud Loss Gauge (spans 1 column) */}
         <div>
