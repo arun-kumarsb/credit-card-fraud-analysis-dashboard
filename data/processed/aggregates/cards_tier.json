@@ -1,0 +1,22 @@
+[
+  {
+    "tier": "Gold",
+    "count": 9973,
+    "pct": 30.73
+  },
+  {
+    "tier": "Silver",
+    "count": 9054,
+    "pct": 27.9
+  },
+  {
+    "tier": "Classic",
+    "count": 7348,
+    "pct": 22.64
+  },
+  {
+    "tier": "Platinum",
+    "count": 6082,
+    "pct": 18.74
+  }
+]

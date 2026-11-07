@@ -1,0 +1,122 @@
+[
+  {
+    "Merchant_Category": "Hospital",
+    "total_txns": 17870,
+    "total_amount": 624705567.94,
+    "fraud_txns": 973,
+    "fraud_amount": 113030930.15,
+    "fraud_rate_pct": 5.44
+  },
+  {
+    "Merchant_Category": "Hotel",
+    "total_txns": 20946,
+    "total_amount": 414039584.86,
+    "fraud_txns": 1143,
+    "fraud_amount": 103152054.64,
+    "fraud_rate_pct": 5.46
+  },
+  {
+    "Merchant_Category": "Airline",
+    "total_txns": 18620,
+    "total_amount": 608330082.25,
+    "fraud_txns": 992,
+    "fraud_amount": 100529171.63,
+    "fraud_rate_pct": 5.33
+  },
+  {
+    "Merchant_Category": "Travel",
+    "total_txns": 19434,
+    "total_amount": 346694054.8,
+    "fraud_txns": 1062,
+    "fraud_amount": 90003221.22,
+    "fraud_rate_pct": 5.46
+  },
+  {
+    "Merchant_Category": "Financial Services",
+    "total_txns": 16564,
+    "total_amount": 394319079.86,
+    "fraud_txns": 873,
+    "fraud_amount": 87979050.09,
+    "fraud_rate_pct": 5.27
+  },
+  {
+    "Merchant_Category": "Electronics",
+    "total_txns": 14103,
+    "total_amount": 522327747.16,
+    "fraud_txns": 754,
+    "fraud_amount": 81511103.33,
+    "fraud_rate_pct": 5.35
+  },
+  {
+    "Merchant_Category": "Education",
+    "total_txns": 13536,
+    "total_amount": 475683110.01,
+    "fraud_txns": 681,
+    "fraud_amount": 74953506.48,
+    "fraud_rate_pct": 5.03
+  },
+  {
+    "Merchant_Category": "Fuel",
+    "total_txns": 19475,
+    "total_amount": 98989157.42,
+    "fraud_txns": 1062,
+    "fraud_amount": 64969152.21,
+    "fraud_rate_pct": 5.45
+  },
+  {
+    "Merchant_Category": "Ecommerce",
+    "total_txns": 17545,
+    "total_amount": 162879985.15,
+    "fraud_txns": 953,
+    "fraud_amount": 63279151.25,
+    "fraud_rate_pct": 5.43
+  },
+  {
+    "Merchant_Category": "Fashion",
+    "total_txns": 19525,
+    "total_amount": 176169421.84,
+    "fraud_txns": 1014,
+    "fraud_amount": 58345116.7,
+    "fraud_rate_pct": 5.19
+  },
+  {
+    "Merchant_Category": "Entertainment",
+    "total_txns": 16019,
+    "total_amount": 78986179.87,
+    "fraud_txns": 906,
+    "fraud_amount": 51929643.89,
+    "fraud_rate_pct": 5.66
+  },
+  {
+    "Merchant_Category": "Food Delivery",
+    "total_txns": 16458,
+    "total_amount": 53613698.0,
+    "fraud_txns": 890,
+    "fraud_amount": 44930748.52,
+    "fraud_rate_pct": 5.41
+  },
+  {
+    "Merchant_Category": "Pharmacy",
+    "total_txns": 14393,
+    "total_amount": 64259345.17,
+    "fraud_txns": 766,
+    "fraud_amount": 40467755.17,
+    "fraud_rate_pct": 5.32
+  },
+  {
+    "Merchant_Category": "Grocery",
+    "total_txns": 12953,
+    "total_amount": 71795624.5,
+    "fraud_txns": 699,
+    "fraud_amount": 39295738.06,
+    "fraud_rate_pct": 5.4
+  },
+  {
+    "Merchant_Category": "Utilities",
+    "total_txns": 12559,
+    "total_amount": 59088711.59,
+    "fraud_txns": 705,
+    "fraud_amount": 37824630.9,
+    "fraud_rate_pct": 5.61
+  }
+]

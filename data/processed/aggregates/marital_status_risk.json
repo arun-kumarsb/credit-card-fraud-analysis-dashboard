@@ -1,0 +1,29 @@
+[
+  {
+    "marital_status": "Divorced",
+    "customer_count": 2533,
+    "total_txns": 25382,
+    "total_amount": 411121318.29,
+    "fraud_txns": 1348,
+    "fraud_amount": 95111098.55,
+    "fraud_rate_pct": 5.31
+  },
+  {
+    "marital_status": "Married",
+    "customer_count": 17598,
+    "total_txns": 176798,
+    "total_amount": 2990926491.3,
+    "fraud_txns": 9638,
+    "fraud_amount": 798722511.08,
+    "fraud_rate_pct": 5.45
+  },
+  {
+    "marital_status": "Single",
+    "customer_count": 4771,
+    "total_txns": 47820,
+    "total_amount": 749833540.83,
+    "fraud_txns": 2487,
+    "fraud_amount": 158367364.61,
+    "fraud_rate_pct": 5.2
+  }
+]

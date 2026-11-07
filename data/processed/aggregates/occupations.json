@@ -1,0 +1,98 @@
+[
+  {
+    "Occupation": "Chartered Accountant",
+    "total_txns": 20584,
+    "total_amount": 381178143.26,
+    "fraud_txns": 1163,
+    "fraud_amount": 130551348.97,
+    "fraud_rate_pct": 5.65
+  },
+  {
+    "Occupation": "Lawyer",
+    "total_txns": 21114,
+    "total_amount": 380782846.72,
+    "fraud_txns": 1183,
+    "fraud_amount": 122244121.32,
+    "fraud_rate_pct": 5.6
+  },
+  {
+    "Occupation": "Doctor",
+    "total_txns": 19841,
+    "total_amount": 365370807.91,
+    "fraud_txns": 1091,
+    "fraud_amount": 118124847.13,
+    "fraud_rate_pct": 5.5
+  },
+  {
+    "Occupation": "Business",
+    "total_txns": 20390,
+    "total_amount": 363566726.27,
+    "fraud_txns": 1105,
+    "fraud_amount": 113021065.25,
+    "fraud_rate_pct": 5.42
+  },
+  {
+    "Occupation": "Data Analyst",
+    "total_txns": 21762,
+    "total_amount": 363657099.03,
+    "fraud_txns": 1163,
+    "fraud_amount": 91566714.64,
+    "fraud_rate_pct": 5.34
+  },
+  {
+    "Occupation": "Government Employee",
+    "total_txns": 21348,
+    "total_amount": 348520481.99,
+    "fraud_txns": 1124,
+    "fraud_amount": 84038684.78,
+    "fraud_rate_pct": 5.27
+  },
+  {
+    "Occupation": "Software Engineer",
+    "total_txns": 20374,
+    "total_amount": 343030325.67,
+    "fraud_txns": 1080,
+    "fraud_amount": 82310499.68,
+    "fraud_rate_pct": 5.3
+  },
+  {
+    "Occupation": "Farmer",
+    "total_txns": 21363,
+    "total_amount": 330109610.06,
+    "fraud_txns": 1147,
+    "fraud_amount": 66089041.870000005,
+    "fraud_rate_pct": 5.37
+  },
+  {
+    "Occupation": "Police Officer",
+    "total_txns": 21093,
+    "total_amount": 328361560.06,
+    "fraud_txns": 1088,
+    "fraud_amount": 65125234.879999995,
+    "fraud_rate_pct": 5.16
+  },
+  {
+    "Occupation": "Nurse",
+    "total_txns": 20827,
+    "total_amount": 324563906.57,
+    "fraud_txns": 1130,
+    "fraud_amount": 64352535.49,
+    "fraud_rate_pct": 5.43
+  },
+  {
+    "Occupation": "Teacher",
+    "total_txns": 21111,
+    "total_amount": 319920502.61,
+    "fraud_txns": 1116,
+    "fraud_amount": 62698374.39,
+    "fraud_rate_pct": 5.29
+  },
+  {
+    "Occupation": "Student",
+    "total_txns": 20193,
+    "total_amount": 302819340.27,
+    "fraud_txns": 1083,
+    "fraud_amount": 52078505.839999996,
+    "fraud_rate_pct": 5.36
+  }
+]

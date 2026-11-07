@@ -1,0 +1,354 @@
+[
+  {
+    "Year_Month": "2023-01",
+    "total_txns": 6027,
+    "total_amount": 100860733.14,
+    "fraud_txns": 304,
+    "fraud_amount": 23796105.61,
+    "fraud_rate_pct": 5.04
+  },
+  {
+    "Year_Month": "2023-02",
+    "total_txns": 5564,
+    "total_amount": 97574053.86,
+    "fraud_txns": 297,
+    "fraud_amount": 27689729.25,
+    "fraud_rate_pct": 5.34
+  },
+  {
+    "Year_Month": "2023-03",
+    "total_txns": 6372,
+    "total_amount": 107684372.21,
+    "fraud_txns": 360,
+    "fraud_amount": 28507833.46,
+    "fraud_rate_pct": 5.65
+  },
+  {
+    "Year_Month": "2023-04",
+    "total_txns": 6235,
+    "total_amount": 102169667.01,
+    "fraud_txns": 350,
+    "fraud_amount": 23093651.31,
+    "fraud_rate_pct": 5.61
+  },
+  {
+    "Year_Month": "2023-05",
+    "total_txns": 6349,
+    "total_amount": 104901621.28,
+    "fraud_txns": 333,
+    "fraud_amount": 27597155.46,
+    "fraud_rate_pct": 5.24
+  },
+  {
+    "Year_Month": "2023-06",
+    "total_txns": 6179,
+    "total_amount": 97892456.27,
+    "fraud_txns": 322,
+    "fraud_amount": 22787889.42,
+    "fraud_rate_pct": 5.21
+  },
+  {
+    "Year_Month": "2023-07",
+    "total_txns": 6414,
+    "total_amount": 98971952.6,
+    "fraud_txns": 333,
+    "fraud_amount": 20633669.22,
+    "fraud_rate_pct": 5.19
+  },
+  {
+    "Year_Month": "2023-08",
+    "total_txns": 6237,
+    "total_amount": 100886370.5,
+    "fraud_txns": 348,
+    "fraud_amount": 23215711.07,
+    "fraud_rate_pct": 5.58
+  },
+  {
+    "Year_Month": "2023-09",
+    "total_txns": 5638,
+    "total_amount": 93473790.89,
+    "fraud_txns": 299,
+    "fraud_amount": 23714038.89,
+    "fraud_rate_pct": 5.3
+  },
+  {
+    "Year_Month": "2023-10",
+    "total_txns": 5690,
+    "total_amount": 91943058.72,
+    "fraud_txns": 302,
+    "fraud_amount": 19564354.96,
+    "fraud_rate_pct": 5.31
+  },
+  {
+    "Year_Month": "2023-11",
+    "total_txns": 5348,
+    "total_amount": 86041385.46,
+    "fraud_txns": 281,
+    "fraud_amount": 18742019.34,
+    "fraud_rate_pct": 5.25
+  },
+  {
+    "Year_Month": "2023-12",
+    "total_txns": 5309,
+    "total_amount": 86353342.26,
+    "fraud_txns": 298,
+    "fraud_amount": 19414681.0,
+    "fraud_rate_pct": 5.61
+  },
+  {
+    "Year_Month": "2024-01",
+    "total_txns": 5272,
+    "total_amount": 86539016.11,
+    "fraud_txns": 260,
+    "fraud_amount": 20610993.64,
+    "fraud_rate_pct": 4.93
+  },
+  {
+    "Year_Month": "2024-02",
+    "total_txns": 4838,
+    "total_amount": 84386524.19,
+    "fraud_txns": 242,
+    "fraud_amount": 23300758.02,
+    "fraud_rate_pct": 5.0
+  },
+  {
+    "Year_Month": "2024-03",
+    "total_txns": 5275,
+    "total_amount": 89264511.04,
+    "fraud_txns": 286,
+    "fraud_amount": 23773261.9,
+    "fraud_rate_pct": 5.42
+  },
+  {
+    "Year_Month": "2024-04",
+    "total_txns": 4868,
+    "total_amount": 82114297.4,
+    "fraud_txns": 266,
+    "fraud_amount": 23299406.7,
+    "fraud_rate_pct": 5.46
+  },
+  {
+    "Year_Month": "2024-05",
+    "total_txns": 4967,
+    "total_amount": 91645347.57,
+    "fraud_txns": 296,
+    "fraud_amount": 29008819.64,
+    "fraud_rate_pct": 5.96
+  },
+  {
+    "Year_Month": "2024-06",
+    "total_txns": 4609,
+    "total_amount": 78038884.15,
+    "fraud_txns": 234,
+    "fraud_amount": 20838527.6,
+    "fraud_rate_pct": 5.08
+  },
+  {
+    "Year_Month": "2024-07",
+    "total_txns": 4853,
+    "total_amount": 79556167.22,
+    "fraud_txns": 244,
+    "fraud_amount": 21019331.29,
+    "fraud_rate_pct": 5.03
+  },
+  {
+    "Year_Month": "2024-08",
+    "total_txns": 4796,
+    "total_amount": 79218270.49,
+    "fraud_txns": 273,
+    "fraud_amount": 18110469.86,
+    "fraud_rate_pct": 5.69
+  },
+  {
+    "Year_Month": "2024-09",
+    "total_txns": 4686,
+    "total_amount": 79481275.63,
+    "fraud_txns": 240,
+    "fraud_amount": 18928518.09,
+    "fraud_rate_pct": 5.12
+  },
+  {
+    "Year_Month": "2024-10",
+    "total_txns": 4876,
+    "total_amount": 77920062.46,
+    "fraud_txns": 291,
+    "fraud_amount": 18015050.54,
+    "fraud_rate_pct": 5.97
+  },
+  {
+    "Year_Month": "2024-11",
+    "total_txns": 4524,
+    "total_amount": 72505724.87,
+    "fraud_txns": 225,
+    "fraud_amount": 16628077.6,
+    "fraud_rate_pct": 4.97
+  },
+  {
+    "Year_Month": "2024-12",
+    "total_txns": 4787,
+    "total_amount": 79273429.88,
+    "fraud_txns": 277,
+    "fraud_amount": 21316597.31,
+    "fraud_rate_pct": 5.79
+  },
+  {
+    "Year_Month": "2025-01",
+    "total_txns": 4749,
+    "total_amount": 84369040.66,
+    "fraud_txns": 269,
+    "fraud_amount": 27545424.92,
+    "fraud_rate_pct": 5.66
+  },
+  {
+    "Year_Month": "2025-02",
+    "total_txns": 4420,
+    "total_amount": 71618967.73,
+    "fraud_txns": 250,
+    "fraud_amount": 16600268.16,
+    "fraud_rate_pct": 5.66
+  },
+  {
+    "Year_Month": "2025-03",
+    "total_txns": 4979,
+    "total_amount": 78824570.51,
+    "fraud_txns": 243,
+    "fraud_amount": 18272162.29,
+    "fraud_rate_pct": 4.88
+  },
+  {
+    "Year_Month": "2025-04",
+    "total_txns": 4946,
+    "total_amount": 83462955.82,
+    "fraud_txns": 230,
+    "fraud_amount": 22967116.47,
+    "fraud_rate_pct": 4.65
+  },
+  {
+    "Year_Month": "2025-05",
+    "total_txns": 5263,
+    "total_amount": 86800007.89,
+    "fraud_txns": 286,
+    "fraud_amount": 20972008.1,
+    "fraud_rate_pct": 5.43
+  },
+  {
+    "Year_Month": "2025-06",
+    "total_txns": 5234,
+    "total_amount": 83132182.59,
+    "fraud_txns": 314,
+    "fraud_amount": 21662703.13,
+    "fraud_rate_pct": 6.0
+  },
+  {
+    "Year_Month": "2025-07",
+    "total_txns": 5517,
+    "total_amount": 85536323.93,
+    "fraud_txns": 310,
+    "fraud_amount": 20136796.26,
+    "fraud_rate_pct": 5.62
+  },
+  {
+    "Year_Month": "2025-08",
+    "total_txns": 5528,
+    "total_amount": 95033263.22,
+    "fraud_txns": 321,
+    "fraud_amount": 25970721.5,
+    "fraud_rate_pct": 5.81
+  },
+  {
+    "Year_Month": "2025-09",
+    "total_txns": 5565,
+    "total_amount": 85639366.3,
+    "fraud_txns": 289,
+    "fraud_amount": 18839501.82,
+    "fraud_rate_pct": 5.19
+  },
+  {
+    "Year_Month": "2025-10",
+    "total_txns": 6094,
+    "total_amount": 102806338.58,
+    "fraud_txns": 318,
+    "fraud_amount": 26255049.14,
+    "fraud_rate_pct": 5.22
+  },
+  {
+    "Year_Month": "2025-11",
+    "total_txns": 6095,
+    "total_amount": 110915686.01,
+    "fraud_txns": 326,
+    "fraud_amount": 34158052.58,
+    "fraud_rate_pct": 5.35
+  },
+  {
+    "Year_Month": "2025-12",
+    "total_txns": 6643,
+    "total_amount": 108795199.65,
+    "fraud_txns": 361,
+    "fraud_amount": 26178004.22,
+    "fraud_rate_pct": 5.43
+  },
+  {
+    "Year_Month": "2026-01",
+    "total_txns": 7010,
+    "total_amount": 112871457.87,
+    "fraud_txns": 394,
+    "fraud_amount": 24449460.81,
+    "fraud_rate_pct": 5.62
+  },
+  {
+    "Year_Month": "2026-02",
+    "total_txns": 6782,
+    "total_amount": 112486225.11,
+    "fraud_txns": 377,
+    "fraud_amount": 28728946.32,
+    "fraud_rate_pct": 5.56
+  },
+  {
+    "Year_Month": "2026-03",
+    "total_txns": 7939,
+    "total_amount": 132033086.6,
+    "fraud_txns": 415,
+    "fraud_amount": 35889964.73,
+    "fraud_rate_pct": 5.23
+  },
+  {
+    "Year_Month": "2026-04",
+    "total_txns": 8472,
+    "total_amount": 147476110.37,
+    "fraud_txns": 454,
+    "fraud_amount": 39815076.07,
+    "fraud_rate_pct": 5.36
+  },
+  {
+    "Year_Month": "2026-05",
+    "total_txns": 10304,
+    "total_amount": 177127796.17,
+    "fraud_txns": 545,
+    "fraud_amount": 48406358.71,
+    "fraud_rate_pct": 5.29
+  },
+  {
+    "Year_Month": "2026-06",
+    "total_txns": 12965,
+    "total_amount": 213577382.83,
+    "fraud_txns": 689,
+    "fraud_amount": 52129335.49,
+    "fraud_rate_pct": 5.31
+  },
+  {
+    "Year_Month": "2026-07",
+    "total_txns": 1277,
+    "total_amount": 22124355.82,
+    "fraud_txns": 88,
+    "fraud_amount": 6804898.24,
+    "fraud_rate_pct": 6.89
+  },
+  {
+    "Year_Month": "2026-08",
+    "total_txns": 505,
+    "total_amount": 8554717.55,
+    "fraud_txns": 33,
+    "fraud_amount": 2812474.1,
+    "fraud_rate_pct": 6.53
+  }
+]

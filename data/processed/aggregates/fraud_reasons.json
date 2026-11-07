@@ -1,0 +1,58 @@
+[
+  {
+    "Fraud_Reason": "Transaction Attempt on Expired Card",
+    "fraud_count": 2470,
+    "fraud_amount": 19382441.39,
+    "avg_amount": 7847.14,
+    "pct_of_total_fraud": 18.33
+  },
+  {
+    "Fraud_Reason": "High Risk Merchant Category Spike",
+    "fraud_count": 1758,
+    "fraud_amount": 81757475.77,
+    "avg_amount": 46505.96,
+    "pct_of_total_fraud": 13.05
+  },
+  {
+    "Fraud_Reason": "Unusual Cross-Border / International Transaction",
+    "fraud_count": 1721,
+    "fraud_amount": 75670491.56,
+    "avg_amount": 43968.91,
+    "pct_of_total_fraud": 12.77
+  },
+  {
+    "Fraud_Reason": "Unusual High Transaction Amount vs Credit Limit",
+    "fraud_count": 1707,
+    "fraud_amount": 772020041.54,
+    "avg_amount": 452267.16,
+    "pct_of_total_fraud": 12.67
+  },
+  {
+    "Fraud_Reason": "Rapid Velocity & Multiple Failed Auth Attempts",
+    "fraud_count": 1702,
+    "fraud_amount": 17927997.69,
+    "avg_amount": 10533.49,
+    "pct_of_total_fraud": 12.63
+  },
+  {
+    "Fraud_Reason": "Late Night Geographical & Velocity Anomaly",
+    "fraud_count": 1676,
+    "fraud_amount": 66478143.06,
+    "avg_amount": 39664.76,
+    "pct_of_total_fraud": 12.44
+  },
+  {
+    "Fraud_Reason": "Transaction Attempt on Blocked Card",
+    "fraud_count": 1591,
+    "fraud_amount": 12551227.54,
+    "avg_amount": 7888.89,
+    "pct_of_total_fraud": 11.81
+  },
+  {
+    "Fraud_Reason": "Transaction Attempt on Lost Card",
+    "fraud_count": 848,
+    "fraud_amount": 6413155.69,
+    "avg_amount": 7562.68,
+    "pct_of_total_fraud": 6.29
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "account_type": "Current",
+    "customer_count": 1042,
+    "total_txns": 10450,
+    "total_amount": 187394053.97,
+    "fraud_txns": 540,
+    "fraud_amount": 59011427.87,
+    "fraud_rate_pct": 5.17
+  },
+  {
+    "account_type": "Salary",
+    "customer_count": 10451,
+    "total_txns": 104404,
+    "total_amount": 1741476447.12,
+    "fraud_txns": 5742,
+    "fraud_amount": 449258606.54,
+    "fraud_rate_pct": 5.5
+  },
+  {
+    "account_type": "Savings",
+    "customer_count": 11371,
+    "total_txns": 114953,
+    "total_amount": 1920191509.06,
+    "fraud_txns": 6108,
+    "fraud_amount": 491852433.99,
+    "fraud_rate_pct": 5.31
+  },
+  {
+    "account_type": "Student",
+    "customer_count": 2038,
+    "total_txns": 20193,
+    "total_amount": 302819340.27,
+    "fraud_txns": 1083,
+    "fraud_amount": 52078505.84,
+    "fraud_rate_pct": 5.36
+  }
+]

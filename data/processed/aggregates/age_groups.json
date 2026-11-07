@@ -1,0 +1,42 @@
+[
+  {
+    "Age_Group": "25-34",
+    "total_txns": 53851,
+    "total_amount": 890504093.62,
+    "fraud_txns": 2818,
+    "fraud_amount": 219208892.45,
+    "fraud_rate_pct": 5.23
+  },
+  {
+    "Age_Group": "35-49",
+    "total_txns": 88210,
+    "total_amount": 1495178546.45,
+    "fraud_txns": 4902,
+    "fraud_amount": 403700618.19,
+    "fraud_rate_pct": 5.56
+  },
+  {
+    "Age_Group": "50-64",
+    "total_txns": 70174,
+    "total_amount": 1165146499.11,
+    "fraud_txns": 3770,
+    "fraud_amount": 297168014.66999996,
+    "fraud_rate_pct": 5.37
+  },
+  {
+    "Age_Group": "65+",
+    "total_txns": 9932,
+    "total_amount": 173925200.08,
+    "fraud_txns": 540,
+    "fraud_amount": 50825736.769999996,
+    "fraud_rate_pct": 5.44
+  },
+  {
+    "Age_Group": "<25",
+    "total_txns": 27833,
+    "total_amount": 427127011.16,
+    "fraud_txns": 1443,
+    "fraud_amount": 81297712.16,
+    "fraud_rate_pct": 5.18
+  }
+]

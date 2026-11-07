@@ -1,0 +1,12 @@
+[
+  {
+    "form_factor": "Physical",
+    "count": 26008,
+    "pct": 80.13
+  },
+  {
+    "form_factor": "Virtual",
+    "count": 6449,
+    "pct": 19.87
+  }
+]

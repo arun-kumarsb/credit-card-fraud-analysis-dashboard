@@ -1,0 +1,22 @@
+[
+  {
+    "status": "Active",
+    "count": 30463,
+    "pct": 93.86
+  },
+  {
+    "status": "Expired",
+    "count": 1007,
+    "pct": 3.1
+  },
+  {
+    "status": "Blocked",
+    "count": 646,
+    "pct": 1.99
+  },
+  {
+    "status": "Lost",
+    "count": 341,
+    "pct": 1.05
+  }
+]

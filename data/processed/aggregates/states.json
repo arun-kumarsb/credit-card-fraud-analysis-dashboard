@@ -1,0 +1,122 @@
+[
+  {
+    "Customer_State": "Kerala",
+    "total_txns": 17358,
+    "total_amount": 302784240.53,
+    "fraud_txns": 933,
+    "fraud_amount": 86004995.78,
+    "fraud_rate_pct": 5.38
+  },
+  {
+    "Customer_State": "Odisha",
+    "total_txns": 16572,
+    "total_amount": 281082080.69,
+    "fraud_txns": 916,
+    "fraud_amount": 77278564.98,
+    "fraud_rate_pct": 5.53
+  },
+  {
+    "Customer_State": "Punjab",
+    "total_txns": 16547,
+    "total_amount": 277990390.67,
+    "fraud_txns": 882,
+    "fraud_amount": 75159361.91,
+    "fraud_rate_pct": 5.33
+  },
+  {
+    "Customer_State": "Assam",
+    "total_txns": 16354,
+    "total_amount": 277613154.29,
+    "fraud_txns": 869,
+    "fraud_amount": 74161775.47,
+    "fraud_rate_pct": 5.31
+  },
+  {
+    "Customer_State": "Haryana",
+    "total_txns": 16556,
+    "total_amount": 278160233.3,
+    "fraud_txns": 921,
+    "fraud_amount": 73669689.53,
+    "fraud_rate_pct": 5.56
+  },
+  {
+    "Customer_State": "Rajasthan",
+    "total_txns": 16553,
+    "total_amount": 275273778.84,
+    "fraud_txns": 864,
+    "fraud_amount": 70543931.15,
+    "fraud_rate_pct": 5.22
+  },
+  {
+    "Customer_State": "Gujarat",
+    "total_txns": 16510,
+    "total_amount": 274508050.41,
+    "fraud_txns": 946,
+    "fraud_amount": 70421779.79,
+    "fraud_rate_pct": 5.73
+  },
+  {
+    "Customer_State": "West Bengal",
+    "total_txns": 16960,
+    "total_amount": 280060017.25,
+    "fraud_txns": 886,
+    "fraud_amount": 69695828.59,
+    "fraud_rate_pct": 5.22
+  },
+  {
+    "Customer_State": "Karnataka",
+    "total_txns": 17275,
+    "total_amount": 280800216.83,
+    "fraud_txns": 907,
+    "fraud_amount": 69375207.12,
+    "fraud_rate_pct": 5.25
+  },
+  {
+    "Customer_State": "Uttar Pradesh",
+    "total_txns": 17077,
+    "total_amount": 280863020.45,
+    "fraud_txns": 1016,
+    "fraud_amount": 68982415.25,
+    "fraud_rate_pct": 5.95
+  },
+  {
+    "Customer_State": "Madhya Pradesh",
+    "total_txns": 16243,
+    "total_amount": 269225692.4,
+    "fraud_txns": 854,
+    "fraud_amount": 67985271.38,
+    "fraud_rate_pct": 5.26
+  },
+  {
+    "Customer_State": "Telangana",
+    "total_txns": 16866,
+    "total_amount": 277858413.54,
+    "fraud_txns": 972,
+    "fraud_amount": 65830702.79,
+    "fraud_rate_pct": 5.76
+  },
+  {
+    "Customer_State": "Maharashtra",
+    "total_txns": 16319,
+    "total_amount": 264318946.62,
+    "fraud_txns": 834,
+    "fraud_amount": 63467652.44,
+    "fraud_rate_pct": 5.11
+  },
+  {
+    "Customer_State": "Bihar",
+    "total_txns": 16458,
+    "total_amount": 267799980.03,
+    "fraud_txns": 898,
+    "fraud_amount": 63124079.16,
+    "fraud_rate_pct": 5.46
+  },
+  {
+    "Customer_State": "Tamil Nadu",
+    "total_txns": 16352,
+    "total_amount": 263543134.57,
+    "fraud_txns": 775,
+    "fraud_amount": 56499718.9,
+    "fraud_rate_pct": 4.74
+  }
+]

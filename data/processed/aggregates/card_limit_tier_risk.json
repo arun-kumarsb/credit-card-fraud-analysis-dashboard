@@ -1,0 +1,47 @@
+[
+  {
+    "credit_limit_tier": "100k-250k",
+    "card_count": 9652,
+    "total_txns": 74991,
+    "total_amount": 1102527441.7,
+    "fraud_txns": 3928,
+    "fraud_amount": 172701365.08,
+    "fraud_rate_pct": 5.24
+  },
+  {
+    "credit_limit_tier": "250k-500k",
+    "card_count": 7968,
+    "total_txns": 61656,
+    "total_amount": 979013249.3,
+    "fraud_txns": 3276,
+    "fraud_amount": 213725546.27,
+    "fraud_rate_pct": 5.31
+  },
+  {
+    "credit_limit_tier": "500k-1M",
+    "card_count": 7212,
+    "total_txns": 55671,
+    "total_amount": 1011912337.65,
+    "fraud_txns": 3099,
+    "fraud_amount": 318994046.59,
+    "fraud_rate_pct": 5.57
+  },
+  {
+    "credit_limit_tier": "<100k",
+    "card_count": 3684,
+    "total_txns": 28582,
+    "total_amount": 403969239.89,
+    "fraud_txns": 1576,
+    "fraud_amount": 50705537.92,
+    "fraud_rate_pct": 5.51
+  },
+  {
+    "credit_limit_tier": ">1M",
+    "card_count": 3776,
+    "total_txns": 29100,
+    "total_amount": 654459081.88,
+    "fraud_txns": 1594,
+    "fraud_amount": 296074478.38,
+    "fraud_rate_pct": 5.48
+  }
+]

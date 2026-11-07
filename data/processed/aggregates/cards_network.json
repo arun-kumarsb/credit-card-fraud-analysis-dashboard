@@ -1,0 +1,22 @@
+[
+  {
+    "network": "American Express",
+    "count": 8276,
+    "pct": 25.5
+  },
+  {
+    "network": "RuPay",
+    "count": 8141,
+    "pct": 25.08
+  },
+  {
+    "network": "Visa",
+    "count": 8101,
+    "pct": 24.96
+  },
+  {
+    "network": "Mastercard",
+    "count": 7939,
+    "pct": 24.46
+  }
+]

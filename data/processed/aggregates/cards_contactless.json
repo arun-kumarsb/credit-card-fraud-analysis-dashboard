@@ -1,0 +1,12 @@
+[
+  {
+    "contactless": "Yes",
+    "count": 27632,
+    "pct": 85.13
+  },
+  {
+    "contactless": "No",
+    "count": 4825,
+    "pct": 14.87
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "income_tier": "1M-2.5M",
+    "customer_count": 7143,
+    "total_txns": 71458,
+    "total_amount": 1234661831.67,
+    "fraud_txns": 3926,
+    "fraud_amount": 338551698.89,
+    "fraud_rate_pct": 5.49
+  },
+  {
+    "income_tier": "2.5M-5M",
+    "customer_count": 3909,
+    "total_txns": 39025,
+    "total_amount": 734708621.31,
+    "fraud_txns": 2087,
+    "fraud_amount": 253400830.21,
+    "fraud_rate_pct": 5.35
+  },
+  {
+    "income_tier": "500k-1M",
+    "customer_count": 7722,
+    "total_txns": 77729,
+    "total_amount": 1228691775.52,
+    "fraud_txns": 4185,
+    "fraud_amount": 265002363.3,
+    "fraud_rate_pct": 5.38
+  },
+  {
+    "income_tier": "<500k",
+    "customer_count": 5013,
+    "total_txns": 50656,
+    "total_amount": 760477551.32,
+    "fraud_txns": 2663,
+    "fraud_amount": 136181994.61,
+    "fraud_rate_pct": 5.26
+  },
+  {
+    "income_tier": ">5M",
+    "customer_count": 1115,
+    "total_txns": 11132,
+    "total_amount": 193341570.6,
+    "fraud_txns": 612,
+    "fraud_amount": 59064087.23,
+    "fraud_rate_pct": 5.5
+  }
+]

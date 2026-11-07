@@ -1,0 +1,14 @@
+{
+  "total_transactions": 250000,
+  "total_volume_amount": 4151881350.42,
+  "fraud_transactions": 13473,
+  "fraud_volume_amount": 1052200974.24,
+  "legit_transactions": 236527,
+  "legit_volume_amount": 3099680376.18,
+  "fraud_rate_pct": 5.389,
+  "fraud_value_rate_pct": 25.343,
+  "avg_transaction_amount": 16607.53,
+  "avg_fraud_amount": 78097.01,
+  "avg_legit_amount": 13104.97,
+  "max_fraud_amount": 1887057.16
+}

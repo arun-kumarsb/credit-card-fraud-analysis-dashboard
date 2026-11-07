@@ -1,0 +1,34 @@
+[
+  {
+    "Payment_Method": "Credit Card",
+    "total_txns": 88405,
+    "total_amount": 1464873488.51,
+    "fraud_txns": 4862,
+    "fraud_amount": 375767322.18,
+    "fraud_rate_pct": 5.5
+  },
+  {
+    "Payment_Method": "Debit Card",
+    "total_txns": 127789,
+    "total_amount": 2116633422.35,
+    "fraud_txns": 6803,
+    "fraud_amount": 528850653.62,
+    "fraud_rate_pct": 5.32
+  },
+  {
+    "Payment_Method": "Net Banking",
+    "total_txns": 6128,
+    "total_amount": 101000819.48,
+    "fraud_txns": 332,
+    "fraud_amount": 23813528.25,
+    "fraud_rate_pct": 5.42
+  },
+  {
+    "Payment_Method": "UPI",
+    "total_txns": 27678,
+    "total_amount": 469373620.08,
+    "fraud_txns": 1476,
+    "fraud_amount": 123769470.19,
+    "fraud_rate_pct": 5.33
+  }
+]

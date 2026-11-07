@@ -1,0 +1,17 @@
+[
+  {
+    "merchant_risk_level": "High",
+    "count": 62,
+    "avg_rating": 4.3
+  },
+  {
+    "merchant_risk_level": "Low",
+    "count": 310,
+    "avg_rating": 4.31
+  },
+  {
+    "merchant_risk_level": "Medium",
+    "count": 128,
+    "avg_rating": 4.24
+  }
+]

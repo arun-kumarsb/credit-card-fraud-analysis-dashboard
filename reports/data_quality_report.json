@@ -1,0 +1,54 @@
+{
+  "project": "SentinelShield",
+  "pipeline_run_timestamp": "2026-11-07T12:47:46.151909Z",
+  "execution_duration_seconds": 14.87,
+  "status": "PASSED_WITH_ZERO_ROW_LOSS",
+  "summary": {
+    "total_transactions": 250000,
+    "total_cards": 32457,
+    "total_customers": 25000,
+    "total_merchants": 500,
+    "total_records_removed": 0,
+    "referential_integrity_status": "100%_VALIDATED"
+  },
+  "datasets": {
+    "customers": {
+      "dataset": "customers",
+      "initial_rows": 25000,
+      "cleaned_rows": 25000,
+      "removed_rows": 0,
+      "marital_status_typo_fixed": 2539,
+      "missing_values_handled": 0,
+      "duplicates_detected": 0
+    },
+    "cards": {
+      "dataset": "cards",
+      "initial_rows": 32457,
+      "cleaned_rows": 32457,
+      "removed_rows": 0,
+      "missing_values_handled": 0,
+      "duplicates_detected": 0
+    },
+    "merchants": {
+      "dataset": "merchants",
+      "initial_rows": 500,
+      "cleaned_rows": 500,
+      "removed_rows": 0,
+      "missing_values_handled": 0,
+      "duplicates_detected": 0
+    },
+    "transactions": {
+      "dataset": "transactions",
+      "initial_rows": 250000,
+      "cleaned_rows": 250000,
+      "removed_rows": 0,
+      "fraud_count": 13473,
+      "legit_count": 236527,
+      "fraud_rate_pct": 5.389,
+      "fraud_loss_total": 1052200974.24,
+      "high_value_fraud_preserved_count": 1155,
+      "max_fraud_amount_preserved": 1887057.16,
+      "duplicates_detected": 0
+    }
+  }
+}

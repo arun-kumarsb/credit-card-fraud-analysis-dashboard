@@ -1,0 +1,146 @@
+[
+  {
+    "merchant_rating": 3.5,
+    "merchant_count": 11,
+    "total_txns": 5591,
+    "total_amount": 134225203.67,
+    "fraud_txns": 312,
+    "fraud_amount": 29020874.87,
+    "fraud_rate_pct": 5.58
+  },
+  {
+    "merchant_rating": 3.6,
+    "merchant_count": 26,
+    "total_txns": 13167,
+    "total_amount": 235426071.72,
+    "fraud_txns": 736,
+    "fraud_amount": 54828743.8,
+    "fraud_rate_pct": 5.59
+  },
+  {
+    "merchant_rating": 3.7,
+    "merchant_count": 32,
+    "total_txns": 16144,
+    "total_amount": 184713850.3,
+    "fraud_txns": 875,
+    "fraud_amount": 56105979.74,
+    "fraud_rate_pct": 5.42
+  },
+  {
+    "merchant_rating": 3.8,
+    "merchant_count": 24,
+    "total_txns": 11921,
+    "total_amount": 204341093.11,
+    "fraud_txns": 684,
+    "fraud_amount": 60825723.35,
+    "fraud_rate_pct": 5.74
+  },
+  {
+    "merchant_rating": 3.9,
+    "merchant_count": 31,
+    "total_txns": 15454,
+    "total_amount": 325451911.55,
+    "fraud_txns": 847,
+    "fraud_amount": 65673205.6,
+    "fraud_rate_pct": 5.48
+  },
+  {
+    "merchant_rating": 4.0,
+    "merchant_count": 28,
+    "total_txns": 14010,
+    "total_amount": 238320185.28,
+    "fraud_txns": 699,
+    "fraud_amount": 60263519.15,
+    "fraud_rate_pct": 4.99
+  },
+  {
+    "merchant_rating": 4.1,
+    "merchant_count": 35,
+    "total_txns": 17374,
+    "total_amount": 250737186.03,
+    "fraud_txns": 927,
+    "fraud_amount": 66493288.47,
+    "fraud_rate_pct": 5.34
+  },
+  {
+    "merchant_rating": 4.2,
+    "merchant_count": 37,
+    "total_txns": 18355,
+    "total_amount": 272140393.16,
+    "fraud_txns": 966,
+    "fraud_amount": 80713865.45,
+    "fraud_rate_pct": 5.26
+  },
+  {
+    "merchant_rating": 4.3,
+    "merchant_count": 40,
+    "total_txns": 20196,
+    "total_amount": 369833862.88,
+    "fraud_txns": 1058,
+    "fraud_amount": 85749623.17,
+    "fraud_rate_pct": 5.24
+  },
+  {
+    "merchant_rating": 4.4,
+    "merchant_count": 46,
+    "total_txns": 23121,
+    "total_amount": 390547593.38,
+    "fraud_txns": 1214,
+    "fraud_amount": 96004889.06,
+    "fraud_rate_pct": 5.25
+  },
+  {
+    "merchant_rating": 4.5,
+    "merchant_count": 31,
+    "total_txns": 15474,
+    "total_amount": 249495909.12,
+    "fraud_txns": 853,
+    "fraud_amount": 58602662.6,
+    "fraud_rate_pct": 5.51
+  },
+  {
+    "merchant_rating": 4.6,
+    "merchant_count": 32,
+    "total_txns": 15863,
+    "total_amount": 235648897.61,
+    "fraud_txns": 903,
+    "fraud_amount": 68387629.63,
+    "fraud_rate_pct": 5.69
+  },
+  {
+    "merchant_rating": 4.7,
+    "merchant_count": 40,
+    "total_txns": 19975,
+    "total_amount": 282153530.45,
+    "fraud_txns": 1078,
+    "fraud_amount": 79617464.61,
+    "fraud_rate_pct": 5.4
+  },
+  {
+    "merchant_rating": 4.8,
+    "merchant_count": 38,
+    "total_txns": 19001,
+    "total_amount": 325087689.34,
+    "fraud_txns": 991,
+    "fraud_amount": 74706239.96,
+    "fraud_rate_pct": 5.22
+  },
+  {
+    "merchant_rating": 4.9,
+    "merchant_count": 33,
+    "total_txns": 16400,
+    "total_amount": 291287369.77,
+    "fraud_txns": 908,
+    "fraud_amount": 72099689.71,
+    "fraud_rate_pct": 5.54
+  },
+  {
+    "merchant_rating": 5.0,
+    "merchant_count": 16,
+    "total_txns": 7954,
+    "total_amount": 162470603.05,
+    "fraud_txns": 422,
+    "fraud_amount": 43107575.07,
+    "fraud_rate_pct": 5.31
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "Customer_Segment": "Basic",
+    "total_txns": 23698,
+    "total_amount": 355491163.18,
+    "fraud_txns": 1284,
+    "fraud_amount": 60973443.8,
+    "fraud_rate_pct": 5.42
+  },
+  {
+    "Customer_Segment": "Gold",
+    "total_txns": 80428,
+    "total_amount": 1299591206.03,
+    "fraud_txns": 4279,
+    "fraud_amount": 298808793.18,
+    "fraud_rate_pct": 5.32
+  },
+  {
+    "Customer_Segment": "Platinum",
+    "total_txns": 83269,
+    "total_amount": 1542090462.35,
+    "fraud_txns": 4547,
+    "fraud_amount": 511044570.89,
+    "fraud_rate_pct": 5.46
+  },
+  {
+    "Customer_Segment": "Standard",
+    "total_txns": 62605,
+    "total_amount": 954708518.86,
+    "fraud_txns": 3363,
+    "fraud_amount": 181374166.37,
+    "fraud_rate_pct": 5.37
+  }
+]
