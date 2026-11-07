@@ -26,6 +26,25 @@ export const StateFraudDensity: React.FC<StateFraudDensityProps> = ({
     return `${currencyPrefix}${val.toFixed(2)}`;
   };
 
+  // State coordinate mapping on India abstract SVG canvas (200x120)
+  const stateCoordinates: Record<string, { cx: number; cy: number; color: string }> = {
+    'Uttar Pradesh': { cx: 110, cy: 45, color: '#EF4444' },
+    'Telangana': { cx: 105, cy: 75, color: '#2563EB' },
+    'Gujarat': { cx: 65, cy: 55, color: '#38BDF8' },
+    'Haryana': { cx: 95, cy: 35, color: '#F59E0B' },
+    'Kerala': { cx: 98, cy: 100, color: '#10B981' },
+    'Punjab': { cx: 90, cy: 30, color: '#F97316' },
+    'Odisha': { cx: 125, cy: 65, color: '#6366F1' },
+    'West Bengal': { cx: 135, cy: 58, color: '#EC4899' },
+    'Rajasthan': { cx: 75, cy: 45, color: '#EAB308' },
+    'Maharashtra': { cx: 80, cy: 70, color: '#06B6D4' },
+    'Karnataka': { cx: 95, cy: 85, color: '#84CC16' },
+    'Tamil Nadu': { cx: 105, cy: 95, color: '#14B8A6' },
+    'Madhya Pradesh': { cx: 95, cy: 55, color: '#8B5CF6' },
+    'Assam': { cx: 150, cy: 40, color: '#10B981' },
+    'Bihar': { cx: 125, cy: 45, color: '#F43F5E' },
+  };
+
   // Sort states by fraud rate descending
   const topStates = useMemo(() => {
     if (!states || states.length === 0) return [];
@@ -88,11 +107,11 @@ export const StateFraudDensity: React.FC<StateFraudDensityProps> = ({
           </div>
           <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
             <MapPin className="w-3 h-3 text-primary" />
-            Pan-India
+            Pan-India ({states.length} States)
           </span>
         </div>
 
-        {/* Geographic Dot Matrix India Map Representation */}
+        {/* Dynamic Geographic Dot Matrix India Map */}
         <div className="relative w-full h-36 my-2.5 rounded-xl bg-slate-50 border border-slate-hairline p-2 flex items-center justify-center overflow-hidden">
           <svg className="w-full h-full max-w-[260px]" viewBox="0 0 200 120">
             {/* Background Matrix Dots */}
@@ -109,18 +128,34 @@ export const StateFraudDensity: React.FC<StateFraudDensityProps> = ({
               <circle cx="105" cy="108" r="2" />
             </g>
 
-            {/* Prominent Density Cluster Hotspot Nodes */}
-            {/* UP Cluster (Pulsing Red) */}
-            <circle cx="110" cy="45" r="7" fill="#EF4444" fillOpacity="0.3" className="animate-ping" />
-            <circle cx="110" cy="45" r="4.5" fill="#DC2626" />
-            {/* TEL Hotspot */}
-            <circle cx="105" cy="75" r="4" fill="#2563EB" />
-            {/* GUJ Hotspot */}
-            <circle cx="65" cy="55" r="4" fill="#38BDF8" />
-            {/* KER Hotspot */}
-            <circle cx="98" cy="100" r="3.5" fill="#10B981" />
-            {/* HAR Hotspot */}
-            <circle cx="95" cy="35" r="3.5" fill="#EF4444" />
+            {/* Dynamically Mapped Hotspot Nodes for the Top States */}
+            {topStates.map((st, idx) => {
+              const coords = stateCoordinates[st.Customer_State] || { cx: 100, cy: 60, color: '#EF4444' };
+              const isTopRanked = idx === 0;
+
+              return (
+                <g key={st.Customer_State}>
+                  {isTopRanked && (
+                    <circle
+                      cx={coords.cx}
+                      cy={coords.cy}
+                      r="7.5"
+                      fill={coords.color}
+                      fillOpacity="0.3"
+                      className="animate-ping"
+                    />
+                  )}
+                  <circle
+                    cx={coords.cx}
+                    cy={coords.cy}
+                    r={isTopRanked ? 4.5 : 3.5}
+                    fill={coords.color}
+                    stroke="#FFFFFF"
+                    strokeWidth="1.5"
+                  />
+                </g>
+              );
+            })}
           </svg>
 
           <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-white/90 backdrop-blur-sm shadow-xs border border-slate-200 text-[10px] text-slate-700 font-semibold">

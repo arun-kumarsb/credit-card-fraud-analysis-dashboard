@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Moon, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Moon, Sun, AlertTriangle } from 'lucide-react';
 
 interface HeatmapEntry {
   Day_of_Week: string;
@@ -98,15 +98,27 @@ export const TemporalAnomalyHeatmap: React.FC<TemporalAnomalyHeatmapProps> = ({ 
     }
   }, [data, viewMode]);
 
-  // Find max fraud incidents for color scaling
-  const maxFraud = useMemo(() => {
+  // Find max fraud incidents for color scaling and dynamic peak detection
+  const { maxFraud, peakInterval, peakFraudCount, isNightPeak } = useMemo(() => {
     let m = 1;
+    let pLabel = '00-04';
+    let pMax = 0;
+
     matrix.forEach((r) => {
+      const rowSum = r.cells.reduce((acc, c) => acc + c.fraud, 0);
+      if (rowSum > pMax) {
+        pMax = rowSum;
+        pLabel = r.label;
+      }
       r.cells.forEach((c) => {
         if (c.fraud > m) m = c.fraud;
       });
     });
-    return m;
+
+    // Check if peak is during night hours (00-08 or 20-24)
+    const night = pLabel.startsWith('00') || pLabel.startsWith('04') || pLabel.startsWith('20') || pLabel.startsWith('21') || pLabel.startsWith('22') || pLabel.startsWith('23');
+
+    return { maxFraud: m, peakInterval: pLabel, peakFraudCount: pMax, isNightPeak: night };
   }, [matrix]);
 
   // Intensity color styling
@@ -141,17 +153,17 @@ export const TemporalAnomalyHeatmap: React.FC<TemporalAnomalyHeatmapProps> = ({ 
               {viewMode === 'grouped' ? '24H Granular' : '4H Grouped'}
             </button>
             <span className="flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200">
-              <Moon className="w-3 h-3 text-red-500" />
-              Night Attack
+              {isNightPeak ? <Moon className="w-3 h-3 text-red-500" /> : <Sun className="w-3 h-3 text-amber-500" />}
+              {isNightPeak ? 'Night Attack' : 'Day Peak'}
             </span>
           </div>
         </div>
 
-        {/* Analytical Callout */}
+        {/* Dynamic Analytical Callout */}
         <div className="mb-4 p-3 rounded-xl bg-red-50/70 border border-red-100 flex items-start gap-2.5">
           <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
           <p className="text-xs text-slate-body">
-            <strong className="text-red-700 font-bold">00:00 – 04:00 Surge:</strong> Highest off-peak credential testing and automated bot sweeps, exceeding baseline incident rates.
+            <strong className="text-red-700 font-bold">{peakInterval} Surge:</strong> Peak anomalous window with <strong className="text-red-700 font-bold">{peakFraudCount.toLocaleString()}</strong> confirmed fraud incidents across aggregated cycles.
           </p>
         </div>
 
@@ -171,7 +183,7 @@ export const TemporalAnomalyHeatmap: React.FC<TemporalAnomalyHeatmapProps> = ({ 
               {matrix.map((row) => (
                 <div key={row.label} className="grid grid-cols-8 gap-1 items-center">
                   <span className={`text-[10px] font-mono font-bold pl-1 ${
-                    row.label === '00-04' || row.label.startsWith('00') || row.label.startsWith('01') || row.label.startsWith('02') || row.label.startsWith('03')
+                    row.label === peakInterval
                       ? 'text-red-600 font-extrabold'
                       : 'text-slate-muted'
                   }`}>
@@ -219,7 +231,7 @@ export const TemporalAnomalyHeatmap: React.FC<TemporalAnomalyHeatmapProps> = ({ 
           <span className="w-3.5 h-2.5 rounded-sm bg-red-400" title="High"></span>
           <span className="w-3.5 h-2.5 rounded-sm bg-red-700" title="Severe"></span>
         </div>
-        <span className="font-bold text-red-600">Peak ({maxFraud} txns)</span>
+        <span className="font-bold text-red-600">Peak ({maxFraud} txns/hr)</span>
       </div>
     </div>
   );

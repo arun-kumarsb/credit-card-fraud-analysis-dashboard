@@ -92,11 +92,13 @@ export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
 
   // Calculate dynamic top states concentration
   const states = distributions.state_density || [];
-  const top5StatesLoss = states.length > 0
-    ? [...states].sort((a, b) => b.fraud_rate_pct - a.fraud_rate_pct).slice(0, 5).reduce((s, x) => s + x.fraud_amount, 0)
-    : 0;
+  const sortedStates = states.length > 0
+    ? [...states].sort((a, b) => b.fraud_rate_pct - a.fraud_rate_pct)
+    : [];
+  const top5StatesLoss = sortedStates.slice(0, 5).reduce((s, x) => s + x.fraud_amount, 0);
   const totalStateLoss = states.reduce((s, x) => s + x.fraud_amount, 0);
   const topStatesConcentration = totalStateLoss > 0 ? (top5StatesLoss / totalStateLoss) * 100 : 0;
+  const topStateNames = sortedStates.slice(0, 2).map((s) => s.Customer_State);
 
   // Currency Formatter
   const fmtCurrency = (val: number) => {
@@ -257,6 +259,7 @@ export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
         topSegmentName={topSeg?.Customer_Segment}
         topSegmentLossPct={topSegLossPct}
         topStatesConcentrationPct={topStatesConcentration}
+        topStateNames={topStateNames}
         currencyPrefix={currencyPrefix}
       />
     </div>

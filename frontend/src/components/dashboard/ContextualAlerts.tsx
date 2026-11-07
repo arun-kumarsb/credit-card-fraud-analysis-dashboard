@@ -10,18 +10,20 @@ interface ContextualAlertsProps {
   topSegmentName?: string;
   topSegmentLossPct?: number;
   topStatesConcentrationPct?: number;
+  topStateNames?: string[];
   currencyPrefix?: string;
 }
 
 export const ContextualAlerts: React.FC<ContextualAlertsProps> = ({
   fraudLossAmount,
   fraudLossPct,
-  peakTimeWindow = '00:00 – 04:00 Night Surge',
+  peakTimeWindow = '00:00 – 04:00',
   topCategoryName = 'Hotels',
   topCategoryLoss = 112000000,
   topSegmentName = 'Platinum',
   topSegmentLossPct = 48.6,
   topStatesConcentrationPct = 28.38,
+  topStateNames = ['Uttar Pradesh', 'Telangana'],
   currencyPrefix = '$'
 }) => {
   const fmtCurrency = (val: number) => {
@@ -103,7 +105,7 @@ export const ContextualAlerts: React.FC<ContextualAlertsProps> = ({
             </div>
             <p className="text-slate-muted leading-relaxed">
               Top 5 Indian states account for{' '}
-              <strong className="text-emerald-700 font-extrabold">{topStatesConcentrationPct.toFixed(1)}%</strong> of national fraud loss, with Uttar Pradesh and Telangana demonstrating peak incident rates.
+              <strong className="text-emerald-700 font-extrabold">{topStatesConcentrationPct.toFixed(1)}%</strong> of national fraud loss, with {topStateNames.slice(0, 2).join(' and ')} demonstrating peak incident rates.
             </p>
           </div>
           <div className="mt-3 pt-2 border-t border-slate-200/60 text-[10px] font-semibold text-emerald-600 uppercase tracking-wide">

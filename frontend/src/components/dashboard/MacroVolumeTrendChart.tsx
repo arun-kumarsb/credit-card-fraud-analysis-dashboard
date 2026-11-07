@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { TrendingUp, AlertCircle } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import { MonthlyTrendItem } from '../../types/api';
 
 interface MacroVolumeTrendChartProps {
@@ -19,7 +19,7 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
 
   const fmtCurrency = (val: number) => {
     if (val >= 1e9) return `${currencyPrefix}${(val / 1e9).toFixed(2)}B`;
-    if (val >= 1e6) return `${currencyPrefix}${(val / 1e6).toFixed(2)}M`;
+    if (val >= 1e6) return `${currencyPrefix}${(val / 1e6).toFixed(1)}M`;
     if (val >= 1e3) return `${currencyPrefix}${(val / 1e3).toFixed(1)}k`;
     return `${currencyPrefix}${val.toFixed(2)}`;
   };
@@ -36,25 +36,30 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
   const chartHeight = svgHeight - paddingTop - paddingBottom; // 200
   const baseY = svgHeight - paddingBottom; // 230
 
-  // Y-axis max scale
-  const maxY = 160000000; // 160M baseline
+  // Calculate dynamic maxY from actual data
+  const maxY = useMemo(() => {
+    if (!monthlyData || monthlyData.length === 0) return 160000000;
+    const peakMonthlyGross = Math.max(...monthlyData.map((m) => m.total_amount));
+    // Round up to nearest 40M step
+    const step = 40000000;
+    return Math.max(Math.ceil((peakMonthlyGross * 1.15) / step) * step, 40000000);
+  }, [monthlyData]);
 
-  // Find the peak month in the dataset
-  const { peakIndex, peakItem, points } = useMemo(() => {
+  // Find the peak fraud month dynamically in the dataset
+  const { peakIndex, peakItem, points, xAxisMilestones } = useMemo(() => {
     if (!monthlyData || monthlyData.length === 0) {
-      return { peakIndex: -1, peakItem: null, points: [] };
+      return { peakIndex: -1, peakItem: null, points: [], xAxisMilestones: [] };
     }
 
     let pIdx = 0;
     let maxFraud = monthlyData[0].fraud_amount;
 
-    // Check if Nov 2024 is in the data
+    // Check if Nov 2024 is in the data, otherwise find highest fraud month
     const nov2024Idx = monthlyData.findIndex((m) => m.Year_Month === '2024-11');
     if (nov2024Idx !== -1) {
       pIdx = nov2024Idx;
       maxFraud = monthlyData[nov2024Idx].fraud_amount;
     } else {
-      // Find peak fraud month
       monthlyData.forEach((m, idx) => {
         if (m.fraud_amount > maxFraud) {
           maxFraud = m.fraud_amount;
@@ -71,14 +76,48 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
       return { x, yGross, yFraud, item: m, index: idx };
     });
 
-    return { peakIndex: pIdx, peakItem: monthlyData[pIdx], points: computedPoints };
-  }, [monthlyData, chartWidth, chartHeight, baseY]);
+    // Dynamic X-axis milestone markers
+    const milestones = [];
+    if (computedPoints.length > 0) {
+      // Start
+      milestones.push({ x: computedPoints[0].x, label: computedPoints[0].item.Year_Month, align: 'start' as const });
+      // 25% mark
+      if (computedPoints.length >= 6) {
+        const q1 = computedPoints[Math.floor(computedPoints.length * 0.25)];
+        milestones.push({ x: q1.x, label: q1.item.Year_Month, align: 'middle' as const });
+      }
+      // Peak mark
+      const peakPt = computedPoints[pIdx];
+      milestones.push({
+        x: peakPt.x,
+        label: `${peakPt.item.Year_Month} (Peak)`,
+        align: 'middle' as const,
+        isPeak: true
+      });
+      // 75% mark
+      if (computedPoints.length >= 8) {
+        const q3 = computedPoints[Math.floor(computedPoints.length * 0.75)];
+        if (Math.abs(q3.x - peakPt.x) > 60) {
+          milestones.push({ x: q3.x, label: q3.item.Year_Month, align: 'middle' as const });
+        }
+      }
+      // End
+      const last = computedPoints[computedPoints.length - 1];
+      milestones.push({ x: last.x, label: last.item.Year_Month, align: 'end' as const });
+    }
+
+    return {
+      peakIndex: pIdx,
+      peakItem: monthlyData[pIdx],
+      points: computedPoints,
+      xAxisMilestones: milestones
+    };
+  }, [monthlyData, chartWidth, chartHeight, baseY, maxY]);
 
   // Construct smooth bezier curves through points
   const { grossPath, grossAreaPath, fraudPath } = useMemo(() => {
     if (points.length === 0) return { grossPath: '', grossAreaPath: '', fraudPath: '' };
 
-    // Function to generate smooth cubic Bezier path
     const getBezierPath = (pts: { x: number; y: number }[]) => {
       if (pts.length < 2) return `M ${pts[0]?.x || 0} ${pts[0]?.y || 0}`;
       let path = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
@@ -110,7 +149,7 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
     return { grossPath: gPath, grossAreaPath: gArea, fraudPath: fPath };
   }, [points, baseY]);
 
-  // Selected or active item for tooltip (hovered or default peak)
+  // Selected or active item for tooltip
   const activePoint = hoveredIndex !== null && points[hoveredIndex]
     ? points[hoveredIndex]
     : points[peakIndex] || null;
@@ -176,13 +215,13 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
             <line x1="50" x2="780" y1="230" y2="230" />
           </g>
 
-          {/* Y-Axis Labels */}
+          {/* Dynamic Y-Axis Labels based on calculated maxY */}
           <g className="text-[10px] font-semibold" fill="#94A3B8">
-            <text textAnchor="end" x="42" y="34">{currencyPrefix}160M</text>
-            <text textAnchor="end" x="42" y="84">{currencyPrefix}120M</text>
-            <text textAnchor="end" x="42" y="134">{currencyPrefix}80M</text>
-            <text textAnchor="end" x="42" y="184">{currencyPrefix}40M</text>
-            <text textAnchor="end" x="42" y="234">{currencyPrefix}0M</text>
+            <text textAnchor="end" x="42" y="34">{fmtCurrency(maxY)}</text>
+            <text textAnchor="end" x="42" y="84">{fmtCurrency(maxY * 0.75)}</text>
+            <text textAnchor="end" x="42" y="134">{fmtCurrency(maxY * 0.5)}</text>
+            <text textAnchor="end" x="42" y="184">{fmtCurrency(maxY * 0.25)}</text>
+            <text textAnchor="end" x="42" y="234">{fmtCurrency(0)}</text>
           </g>
 
           {/* Spline 1: Gross Volume Area & Stroke */}
@@ -254,15 +293,20 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
             />
           ))}
 
-          {/* X-Axis Labels */}
-          <g className="text-[11px] font-semibold" fill="#64748B">
-            <text textAnchor="start" x="60" y="255">Jan 2023</text>
-            <text textAnchor="middle" x="240" y="255">2024</text>
-            <text fill="#EF4444" textAnchor="middle" x="460" y="255" className="font-bold">
-              Nov 2024 (Peak)
-            </text>
-            <text textAnchor="middle" x="590" y="255">2025</text>
-            <text textAnchor="end" x="770" y="255">Aug 2026</text>
+          {/* Dynamic X-Axis Milestone Labels */}
+          <g className="text-[11px] font-semibold">
+            {xAxisMilestones.map((m, i) => (
+              <text
+                key={i}
+                x={m.x}
+                y={255}
+                textAnchor={m.align}
+                fill={m.isPeak ? '#EF4444' : '#64748B'}
+                className={m.isPeak ? 'font-bold' : ''}
+              >
+                {m.label}
+              </text>
+            ))}
           </g>
         </svg>
 
@@ -301,7 +345,7 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
         )}
       </div>
 
-      {/* 3. Footer KPI Bar matching Stitch Reference */}
+      {/* 3. Footer KPI Bar */}
       <div className="pt-3 border-t border-slate-hairline flex flex-wrap items-center justify-between gap-3 text-xs text-slate-muted">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
@@ -320,7 +364,9 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
 
         <div className="flex items-center gap-1.5 text-slate-body">
           <TrendingUp className="w-4 h-4 text-emerald-600" />
-          <span className="font-semibold text-emerald-700">99.4% confidence interval correlation</span>
+          <span className="font-semibold text-emerald-700">
+            {monthlyData.length} Monthly Audit Cycles Aggregated
+          </span>
         </div>
       </div>
     </div>

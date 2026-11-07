@@ -160,11 +160,14 @@ export const CustomerSegmentDonut: React.FC<CustomerSegmentDonutProps> = ({
         </div>
       </div>
 
-      {/* Footnote Observation */}
+      {/* Footnote Observation computed dynamically */}
       <div className="pt-3 border-t border-slate-hairline mt-3 text-center text-xs text-slate-muted">
-        <span>
-          <strong>Platinum tier</strong> carries 8.4× higher syndicate attack frequency due to high credit limits.
-        </span>
+        {enrichedSegments.length > 0 && (
+          <span>
+            <strong className="text-slate-heading">{enrichedSegments[0].Customer_Segment} Tier</strong> carries the highest loss burden, representing{' '}
+            <strong className="text-blue-600 font-bold">{enrichedSegments[0].sharePct.toFixed(1)}%</strong> of net fraud capital.
+          </span>
+        )}
       </div>
     </div>
   );
