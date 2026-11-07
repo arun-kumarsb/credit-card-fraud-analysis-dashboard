@@ -80,6 +80,23 @@ export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
 
   const { kpis, fraud_loss_share, customer_segments, top_categories } = overview;
 
+  // Dynamic Insights Calculation directly from genuine API payloads
+  const topCat = top_categories && top_categories.length > 0 ? top_categories[0] : null;
+  const topSeg = customer_segments && customer_segments.length > 0
+    ? [...customer_segments].sort((a, b) => b.fraud_amount - a.fraud_amount)[0]
+    : null;
+  const topSegLossPct = topSeg && fraud_loss_share.fraud_loss_amount > 0
+    ? (topSeg.fraud_amount / fraud_loss_share.fraud_loss_amount) * 100
+    : 0;
+
+  // Calculate dynamic top states concentration
+  const states = distributions.state_density || [];
+  const top5StatesLoss = states.length > 0
+    ? [...states].sort((a, b) => b.fraud_rate_pct - a.fraud_rate_pct).slice(0, 5).reduce((s, x) => s + x.fraud_amount, 0)
+    : 0;
+  const totalStateLoss = states.reduce((s, x) => s + x.fraud_amount, 0);
+  const topStatesConcentration = totalStateLoss > 0 ? (top5StatesLoss / totalStateLoss) * 100 : 0;
+
   // Currency Formatter
   const fmtCurrency = (val: number) => {
     if (val >= 1e9) return `${currencyPrefix}${(val / 1e9).toFixed(2)}B`;
@@ -260,6 +277,11 @@ export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
       <ContextualAlerts
         fraudLossAmount={fraud_loss_share.fraud_loss_amount}
         fraudLossPct={fraud_loss_share.fraud_volume_pct}
+        topCategoryName={topCat?.Merchant_Category}
+        topCategoryLoss={topCat?.fraud_amount}
+        topSegmentName={topSeg?.Customer_Segment}
+        topSegmentLossPct={topSegLossPct}
+        topStatesConcentrationPct={topStatesConcentration}
         currencyPrefix={currencyPrefix}
       />
     </div>
