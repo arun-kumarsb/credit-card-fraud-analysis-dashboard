@@ -54,19 +54,13 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
     let pIdx = 0;
     let maxFraud = monthlyData[0].fraud_amount;
 
-    // Check if Nov 2024 is in the data, otherwise find highest fraud month
-    const nov2024Idx = monthlyData.findIndex((m) => m.Year_Month === '2024-11');
-    if (nov2024Idx !== -1) {
-      pIdx = nov2024Idx;
-      maxFraud = monthlyData[nov2024Idx].fraud_amount;
-    } else {
-      monthlyData.forEach((m, idx) => {
-        if (m.fraud_amount > maxFraud) {
-          maxFraud = m.fraud_amount;
-          pIdx = idx;
-        }
-      });
-    }
+    // Mathematically find the peak fraud loss month dynamically from the actual dataset
+    monthlyData.forEach((m, idx) => {
+      if (m.fraud_amount > maxFraud) {
+        maxFraud = m.fraud_amount;
+        pIdx = idx;
+      }
+    });
 
     const n = monthlyData.length;
     const computedPoints = monthlyData.map((m, idx) => {
@@ -76,34 +70,54 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
       return { x, yGross, yFraud, item: m, index: idx };
     });
 
-    // Dynamic X-axis milestone markers
-    const milestones = [];
+    // Dynamic X-axis milestone markers without text collisions
+    const milestones: Array<{ x: number; label: string; align: 'start' | 'middle' | 'end'; isPeak?: boolean }> = [];
     if (computedPoints.length > 0) {
-      // Start
-      milestones.push({ x: computedPoints[0].x, label: computedPoints[0].item.Year_Month, align: 'start' as const });
-      // 25% mark
-      if (computedPoints.length >= 6) {
-        const q1 = computedPoints[Math.floor(computedPoints.length * 0.25)];
-        milestones.push({ x: q1.x, label: q1.item.Year_Month, align: 'middle' as const });
-      }
-      // Peak mark
+      const first = computedPoints[0];
+      const last = computedPoints[computedPoints.length - 1];
       const peakPt = computedPoints[pIdx];
+
+      // 1. Start milestone
+      milestones.push({ x: first.x, label: first.item.Year_Month, align: 'start' });
+
+      // Peak distance checks
+      const distPeakFromFirst = Math.abs(peakPt.x - first.x);
+      const distPeakFromLast = Math.abs(last.x - peakPt.x);
+      const isPeakNearEnd = distPeakFromLast < 70;
+      const isPeakNearStart = distPeakFromFirst < 70;
+
+      // 2. Intermediate quarter/half candidates
+      const candidateIndices = [
+        Math.floor(computedPoints.length * 0.25),
+        Math.floor(computedPoints.length * 0.50),
+        Math.floor(computedPoints.length * 0.75),
+      ];
+
+      for (const cIdx of candidateIndices) {
+        const cand = computedPoints[cIdx];
+        if (!cand) continue;
+        if (
+          Math.abs(cand.x - first.x) >= 65 &&
+          Math.abs(cand.x - last.x) >= 65 &&
+          Math.abs(cand.x - peakPt.x) >= 65 &&
+          milestones.every((m) => Math.abs(cand.x - m.x) >= 65)
+        ) {
+          milestones.push({ x: cand.x, label: cand.item.Year_Month, align: 'middle' });
+        }
+      }
+
+      // 3. Peak milestone (bold red)
       milestones.push({
         x: peakPt.x,
         label: `${peakPt.item.Year_Month} (Peak)`,
-        align: 'middle' as const,
-        isPeak: true
+        align: isPeakNearEnd ? 'end' : isPeakNearStart ? 'start' : 'middle',
+        isPeak: true,
       });
-      // 75% mark
-      if (computedPoints.length >= 8) {
-        const q3 = computedPoints[Math.floor(computedPoints.length * 0.75)];
-        if (Math.abs(q3.x - peakPt.x) > 60) {
-          milestones.push({ x: q3.x, label: q3.item.Year_Month, align: 'middle' as const });
-        }
+
+      // 4. End milestone (if peak is not already at the end)
+      if (!isPeakNearEnd) {
+        milestones.push({ x: last.x, label: last.item.Year_Month, align: 'end' });
       }
-      // End
-      const last = computedPoints[computedPoints.length - 1];
-      milestones.push({ x: last.x, label: last.item.Year_Month, align: 'end' as const });
     }
 
     return {
@@ -148,6 +162,62 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
 
     return { grossPath: gPath, grossAreaPath: gArea, fraudPath: fPath };
   }, [points, baseY]);
+
+  // Dynamic gradient stops for Elevated Threat Crest along the baseline loss spline
+  const threatGradientStops = useMemo(() => {
+    if (points.length < 2 || peakIndex === -1) {
+      return (
+        <>
+          <stop offset="0%" stopColor="#2563EB" />
+          <stop offset="100%" stopColor="#2563EB" />
+        </>
+      );
+    }
+
+    const maxFraud = monthlyData[peakIndex]?.fraud_amount || 1;
+    const elevatedThreshold = maxFraud * 0.72;
+
+    // Expand to find continuous elevated surge window around the peak
+    let startIdx = peakIndex;
+    let endIdx = peakIndex;
+    while (startIdx > 0 && monthlyData[startIdx - 1].fraud_amount >= elevatedThreshold) {
+      startIdx--;
+    }
+    while (endIdx < monthlyData.length - 1 && monthlyData[endIdx + 1].fraud_amount >= elevatedThreshold) {
+      endIdx++;
+    }
+
+    const xStart = points[startIdx].x;
+    const xEnd = points[endIdx].x;
+
+    // Convert pixel coordinates to percentage along the spline
+    let pStart = ((xStart - paddingLeft) / chartWidth) * 100;
+    let pEnd = ((xEnd - paddingLeft) / chartWidth) * 100;
+
+    // Ensure a clear, visible crest span if start and end are too close
+    if (pEnd - pStart < 10) {
+      const center = (pStart + pEnd) / 2;
+      pStart = Math.max(0, center - 5);
+      pEnd = Math.min(100, center + 5);
+    }
+
+    const blend = 3;
+    const s0 = Math.max(0, pStart - blend).toFixed(1);
+    const s1 = pStart.toFixed(1);
+    const s2 = pEnd.toFixed(1);
+    const s3 = Math.min(100, pEnd + blend).toFixed(1);
+
+    return (
+      <>
+        <stop offset="0%" stopColor="#2563EB" />
+        <stop offset={`${s0}%`} stopColor="#2563EB" />
+        <stop offset={`${s1}%`} stopColor="#EF4444" />
+        <stop offset={`${s2}%`} stopColor="#EF4444" />
+        <stop offset={`${s3}%`} stopColor="#2563EB" />
+        <stop offset="100%" stopColor="#2563EB" />
+      </>
+    );
+  }, [points, peakIndex, monthlyData, chartWidth, paddingLeft]);
 
   // Selected or active item for tooltip
   const activePoint = hoveredIndex !== null && points[hoveredIndex]
@@ -197,12 +267,7 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
               <stop offset="100%" stopColor="#38BDF8" stopOpacity={0.0} />
             </linearGradient>
             <linearGradient id="fraudStrokeGrad" x1="0%" x2="100%" y1="0%" y2="0%">
-              <stop offset="0%" stopColor="#2563EB" />
-              <stop offset="48%" stopColor="#2563EB" />
-              <stop offset="52%" stopColor="#EF4444" />
-              <stop offset="68%" stopColor="#EF4444" />
-              <stop offset="85%" stopColor="#2563EB" />
-              <stop offset="100%" stopColor="#2563EB" />
+              {threatGradientStops}
             </linearGradient>
           </defs>
 
@@ -271,7 +336,13 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
                 cx={activePoint.x}
                 cy={activePoint.yFraud}
                 r="6.5"
-                fill="#EF4444"
+                fill={
+                  isPeak ||
+                  activePoint.item.fraud_amount >=
+                    (monthlyData[peakIndex]?.fraud_amount || 0) * 0.72
+                    ? '#EF4444'
+                    : '#2563EB'
+                }
                 stroke="#FFFFFF"
                 strokeWidth="2.5"
               />
@@ -314,7 +385,7 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
         {activePoint && (
           <div
             style={{
-              left: `${Math.min(Math.max((activePoint.x / svgWidth) * 100, 20), 80)}%`,
+              left: `${Math.min(Math.max((activePoint.x / svgWidth) * 100, 18), 82)}%`,
               top: '10%'
             }}
             className="absolute -translate-x-1/2 p-3 rounded-xl bg-slate-900/95 backdrop-blur-sm text-white shadow-xl pointer-events-none flex flex-col gap-1 border border-slate-700/60 z-20 min-w-[190px]"
@@ -323,7 +394,15 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
               <span className="text-xs font-bold text-sky-400">
                 {activePoint.item.Year_Month} {isPeak ? 'Crest' : 'Snapshot'}
               </span>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-600/90 text-white">
+              <span
+                className={`text-[10px] font-bold px-1.5 py-0.5 rounded text-white ${
+                  isPeak ||
+                  activePoint.item.fraud_amount >=
+                    (monthlyData[peakIndex]?.fraud_amount || 0) * 0.72
+                    ? 'bg-red-600/90'
+                    : 'bg-blue-600/90'
+                }`}
+              >
                 {activePoint.item.total_amount > 0
                   ? ((activePoint.item.fraud_amount / activePoint.item.total_amount) * 100).toFixed(1)
                   : '0.0'}% Ratio
