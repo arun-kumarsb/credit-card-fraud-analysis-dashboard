@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShieldAlert, Clock, Layers, MapPin, Store } from 'lucide-react';
+import { formatCurrencyIN, formatNumberIN, CURRENCY_SYMBOL } from '../../utils/formatters';
 
 interface ContextualAlertsProps {
   fraudLossAmount: number;
@@ -24,13 +25,9 @@ export const ContextualAlerts: React.FC<ContextualAlertsProps> = ({
   topSegmentLossPct = 48.6,
   topStatesConcentrationPct = 28.38,
   topStateNames = ['Uttar Pradesh', 'Telangana'],
-  currencyPrefix = '$'
+  currencyPrefix = CURRENCY_SYMBOL
 }) => {
-  const fmtCurrency = (val: number) => {
-    if (val >= 1e9) return `${currencyPrefix}${(val / 1e9).toFixed(2)}B`;
-    if (val >= 1e6) return `${currencyPrefix}${(val / 1e6).toFixed(1)}M`;
-    return `${currencyPrefix}${val.toLocaleString()}`;
-  };
+  const fmtCurrency = (val: number) => formatCurrencyIN(val);
 
   return (
     <div className="bg-surface rounded-2xl p-6 border border-slate-hairline shadow-ambient">

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Info, AlertCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
+import { formatCurrencyIN, formatNumberIN, CURRENCY_SYMBOL } from '../../utils/formatters';
 
 interface SemicircularGaugeProps {
   fraudPct: number;
@@ -18,14 +19,9 @@ export const SemicircularGauge: React.FC<SemicircularGaugeProps> = ({
   legitAmount,
   fraudIncidents,
   totalTransactions = 250000,
-  currencyPrefix = '$'
+  currencyPrefix = CURRENCY_SYMBOL
 }) => {
-  const fmtCurrency = (val: number) => {
-    if (val >= 1e9) return `${currencyPrefix}${(val / 1e9).toFixed(2)}B`;
-    if (val >= 1e6) return `${currencyPrefix}${(val / 1e6).toFixed(2)}M`;
-    if (val >= 1e3) return `${currencyPrefix}${(val / 1e3).toFixed(1)}k`;
-    return `${currencyPrefix}${val.toFixed(2)}`;
-  };
+  const fmtCurrency = (val: number) => formatCurrencyIN(val);
 
   // Math for 180-degree semicircular arc:
   // Radius = 78, Total length = PI * 78 ≈ 245.044
@@ -53,7 +49,7 @@ export const SemicircularGauge: React.FC<SemicircularGaugeProps> = ({
               </div>
             </div>
             <p className="text-xs text-slate-muted mt-0.5">
-              Calculated over {totalTransactions.toLocaleString()} audited ledger logs
+              Calculated over {formatNumberIN(totalTransactions)} audited ledger logs
             </p>
           </div>
           <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200">
@@ -127,7 +123,7 @@ export const SemicircularGauge: React.FC<SemicircularGaugeProps> = ({
             {fmtCurrency(fraudAmount)} Loss
           </p>
           <p className="text-xs text-slate-muted mt-0.5">
-            Attributed across {fraudIncidents.toLocaleString()} confirmed fraud incidents
+            Attributed across {formatNumberIN(fraudIncidents)} confirmed fraud incidents
           </p>
         </div>
       </div>

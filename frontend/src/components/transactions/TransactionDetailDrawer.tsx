@@ -2,6 +2,7 @@ import React from 'react';
 import { X, ShieldAlert, CheckCircle2, User, CreditCard, Store, Clock, MapPin } from 'lucide-react';
 import { TransactionDetail } from '../../types/api';
 import { StatusBadge } from '../common/StatusBadge';
+import { formatExactCurrencyIN } from '../../utils/formatters';
 
 interface DrawerProps {
   transaction: TransactionDetail | null;
@@ -57,7 +58,7 @@ export const TransactionDetailDrawer: React.FC<DrawerProps> = ({ transaction, on
               <div>
                 <span className="text-slate-muted block">Transaction Amount</span>
                 <span className="text-xl font-bold text-slate-heading tabular-nums">
-                  ${transaction.transaction_amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  {formatExactCurrencyIN(transaction.transaction_amount)}
                 </span>
               </div>
               <div>
@@ -126,7 +127,7 @@ export const TransactionDetailDrawer: React.FC<DrawerProps> = ({ transaction, on
               <div>
                 <span className="text-slate-muted block">Assigned Credit Limit</span>
                 <span className="font-bold text-slate-heading tabular-nums">
-                  ${transaction.card_credit_limit.toLocaleString()}
+                  {formatExactCurrencyIN(transaction.card_credit_limit)}
                 </span>
               </div>
             </div>

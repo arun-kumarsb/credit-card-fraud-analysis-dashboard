@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Layers, ShieldAlert } from 'lucide-react';
+import { formatCurrencyIN, formatNumberIN, CURRENCY_SYMBOL } from '../../utils/formatters';
 
 interface SegmentData {
   Customer_Segment: string;
@@ -17,14 +18,9 @@ interface CustomerSegmentDonutProps {
 
 export const CustomerSegmentDonut: React.FC<CustomerSegmentDonutProps> = ({
   segments,
-  currencyPrefix = '$'
+  currencyPrefix = CURRENCY_SYMBOL
 }) => {
-  const fmtCurrency = (val: number) => {
-    if (val >= 1e9) return `${currencyPrefix}${(val / 1e9).toFixed(2)}B`;
-    if (val >= 1e6) return `${currencyPrefix}${(val / 1e6).toFixed(1)}M`;
-    if (val >= 1e3) return `${currencyPrefix}${(val / 1e3).toFixed(1)}k`;
-    return `${currencyPrefix}${val.toFixed(2)}`;
-  };
+  const fmtCurrency = (val: number) => formatCurrencyIN(val);
 
   // Fixed colors for the 4 tiers matching the design system
   const tierConfig: Record<string, { color: string; bgBadge: string; textBadge: string; dotClass: string }> = {

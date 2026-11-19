@@ -8,8 +8,12 @@ import {
   CheckCircle2,
   AlertTriangle,
   ChevronDown,
-  X
+  X,
+  Sparkles,
+  Key,
+  ShieldCheck
 } from 'lucide-react';
+import { api } from '../../services/api';
 
 export interface DateRangeOption {
   id: string;
@@ -47,9 +51,37 @@ export const Header: React.FC<HeaderProps> = ({
   onSearchSubmit,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
+  const [dateDropdownOpen, setDateDropdownOpen] = useState(() => {
+    return typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('openFilter') === 'true';
+  });
   const [notifOpen, setNotifOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [geminiKeyInput, setGeminiKeyInput] = useState('');
+  const [keyConfigStatus, setKeyConfigStatus] = useState<{ has_api_key: boolean; masked_key?: string } | null>(null);
+  const [savingKey, setSavingKey] = useState(false);
+  const [keySavedMessage, setKeySavedMessage] = useState('');
+
+  useEffect(() => {
+    api.getApiKeyStatus().then(setKeyConfigStatus).catch(() => {});
+  }, []);
+
+  const handleSaveKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!geminiKeyInput.trim()) return;
+    try {
+      setSavingKey(true);
+      const res = await api.saveApiKey(geminiKeyInput.trim());
+      setKeyConfigStatus(res);
+      setKeySavedMessage('Gemini API Key activated successfully!');
+      setTimeout(() => setKeySavedMessage(''), 3000);
+      setGeminiKeyInput('');
+    } catch (err: any) {
+      alert('Failed to save API key: ' + err.message);
+    } finally {
+      setSavingKey(false);
+    }
+  };
 
   const dateRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -105,10 +137,10 @@ export const Header: React.FC<HeaderProps> = ({
     setExportOpen(false);
     const csvContent =
       'Metric,Value,Note\n' +
-      'Gross Volume,$4151881350.42,Audited Ledger\n' +
-      'Fraud Loss,$1052200974.24,25.34% of total value\n' +
+      'Gross Volume (INR),₹4151881350.42,Audited Ledger\n' +
+      'Fraud Loss (INR),₹1052200974.24,25.34% of total value\n' +
       'Fraud Transactions,13473,5.39% incident rate\n' +
-      'Legitimate Volume,$3099680376.18,74.66% settled\n' +
+      'Legitimate Volume (INR),₹3099680376.18,74.66% settled\n' +
       'Date Range,' + currentRange.label + ',Filtered View\n';
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -240,7 +272,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="p-2 rounded-lg bg-red-50/60 border border-red-100">
                   <div className="flex justify-between font-bold text-red-700 text-[11px]">
                     <span>High-Value Outlier Flag</span>
-                    <span>$1,887,057.16</span>
+                    <span>₹18,87,057.16</span>
                   </div>
                   <p className="text-[11px] text-slate-600 mt-0.5">
                     Unusual transaction pattern flagged in Uttar Pradesh (UP).
@@ -259,6 +291,17 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
         </div>
+
+        {/* Gemini AI Status & Settings Trigger */}
+        <button
+          onClick={() => setAiModalOpen(true)}
+          className="h-9 px-3 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-700 border border-indigo-200/80 text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
+          title="Gemini AI Forensic Settings"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-indigo-600 animate-pulse" />
+          <span className="hidden md:inline">Gemini AI</span>
+          <span className={`w-2 h-2 rounded-full ${keyConfigStatus?.has_api_key ? 'bg-purple-600' : 'bg-emerald-500'}`}></span>
+        </button>
 
         {/* Export Data Dropdown */}
         <div className="relative" ref={exportRef}>
@@ -311,6 +354,107 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Gemini AI Settings Modal */}
+      {aiModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-indigo-50/50 to-purple-50/50">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-indigo-600 text-white shadow-sm">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-800">Gemini AI Forensic Engine</h3>
+                  <p className="text-[11px] text-slate-500">Live Chart Analysis & Forensic Explanations</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setAiModalOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4 text-xs">
+              {/* Status Banner */}
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block">Engine Status</span>
+                  <span className="font-semibold text-slate-700 text-xs flex items-center gap-1.5 mt-0.5">
+                    {keyConfigStatus?.has_api_key ? (
+                      <>
+                        <ShieldCheck className="w-4 h-4 text-purple-600" />
+                        Google Gemini 1.5 Flash Active ({keyConfigStatus.masked_key})
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        Built-in AI Forensic Engine Active (Zero Setup)
+                      </>
+                    )}
+                  </span>
+                </div>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${keyConfigStatus?.has_api_key ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                  {keyConfigStatus?.has_api_key ? 'Live API' : 'Deterministic'}
+                </span>
+              </div>
+
+              {keySavedMessage && (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  {keySavedMessage}
+                </div>
+              )}
+
+              {/* API Key Form */}
+              <form onSubmit={handleSaveKey} className="space-y-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Google Gemini API Key (Optional)
+                  </label>
+                  <div className="relative">
+                    <Key className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="password"
+                      value={geminiKeyInput}
+                      onChange={(e) => setGeminiKeyInput(e.target.value)}
+                      placeholder="Enter AIzaSy... to enable live Gemini API"
+                      className="w-full h-9 pl-9 pr-3 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-indigo-600 font-mono"
+                    />
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    If omitted, the dashboard uses its built-in local deterministic AI engine. You do not need a key to run the dashboard.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-indigo-50/50 border border-indigo-100 text-indigo-900 text-[11px] leading-relaxed">
+                  💡 <strong>Prompt Optimization Guarantee:</strong> SentinelShield only transmits 5-8 summarized metrics per chart to Gemini (~100 tokens), satisfying strict quota constraints.
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setAiModalOpen(false)}
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={savingKey || !geminiKeyInput.trim()}
+                    className="px-4 py-1.5 rounded-xl bg-indigo-600 text-white font-semibold shadow-sm hover:bg-indigo-700 transition disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{savingKey ? 'Saving...' : 'Save API Key'}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

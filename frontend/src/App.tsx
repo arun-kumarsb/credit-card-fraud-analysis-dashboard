@@ -10,11 +10,37 @@ import { MLPredictorPage } from './pages/MLPredictorPage';
 import { DataQualityPage } from './pages/DataQualityPage';
 
 export function App() {
-  const [currentTab, setCurrentTab] = useState<string>('overview');
+  const getInitialTab = () => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab') || window.location.hash.replace('#', '');
+    if (tab && ['overview', 'transactions', 'customers', 'cards', 'merchants', 'predictor', 'quality'].includes(tab)) {
+      return tab;
+    }
+    return 'overview';
+  };
+
+  const getInitialRange = () => {
+    const params = new URLSearchParams(window.location.search);
+    const rangeId = params.get('range');
+    if (rangeId) {
+      const found = DATE_RANGES.find(r => r.id === rangeId);
+      if (found) return found;
+    }
+    return DATE_RANGES[0];
+  };
+
+  const [currentTab, setCurrentTab] = useState<string>(getInitialTab);
   const [refreshKey, setRefreshKey] = useState<number>(0);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const [selectedRange, setSelectedRange] = useState<DateRangeOption>(DATE_RANGES[0]);
+  const [selectedRange, setSelectedRange] = useState<DateRangeOption>(getInitialRange);
   const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('');
+
+  const handleTabChange = (newTab: string) => {
+    setCurrentTab(newTab);
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', newTab);
+    window.history.replaceState(null, '', `?${params.toString()}`);
+  };
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -24,6 +50,9 @@ export function App() {
 
   const handleDateRangeChange = (range: DateRangeOption) => {
     setSelectedRange(range);
+    const params = new URLSearchParams(window.location.search);
+    params.set('range', range.id);
+    window.history.replaceState(null, '', `?${params.toString()}`);
     setRefreshKey((prev) => prev + 1);
   };
 
@@ -141,7 +170,7 @@ export function App() {
   return (
     <div className="flex h-screen bg-canvas overflow-hidden">
       {/* Sidebar Navigation */}
-      <Sidebar currentTab={currentTab} onTabChange={setCurrentTab} />
+      <Sidebar currentTab={currentTab} onTabChange={handleTabChange} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">

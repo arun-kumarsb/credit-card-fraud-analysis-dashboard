@@ -30,9 +30,11 @@ import {
 } from '../types/api';
 import { KPICard } from '../components/common/KPICard';
 import { ChartCard } from '../components/common/ChartCard';
+import { ChartInsightBox } from '../components/common/ChartInsightBox';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { LoadingSkeleton, ErrorState } from '../components/common/LoadingSkeleton';
 import { TransactionDetailDrawer } from '../components/transactions/TransactionDetailDrawer';
+import { formatCurrencyIN, formatExactCurrencyIN, formatNumberIN } from '../utils/formatters';
 
 interface TransactionsExplorerPageProps {
   initialSearch?: string;
@@ -146,6 +148,21 @@ export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> =
     }
   };
 
+  // Automatically open transaction detail if requested via URL query param
+  useEffect(() => {
+    if (!data?.items?.length || selectedTxn) return;
+    const params = new URLSearchParams(window.location.search);
+    const txnIdParam = params.get('txnId');
+    if (txnIdParam) {
+      handleRowClick(txnIdParam);
+    } else if (params.get('openDrawer') === 'true') {
+      const target = data.items.find((it) => it.fraud_flag === 1) || data.items[0];
+      if (target) {
+        handleRowClick(target.transaction_id);
+      }
+    }
+  }, [data]);
+
   const categoriesList = [
     'All', 'Hotel', 'Fashion', 'Fuel', 'Travel', 'Airline', 'Hospital', 
     'Ecommerce', 'Financial Services', 'Food Delivery', 'Entertainment', 
@@ -155,12 +172,7 @@ export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> =
   const paymentRailsList = ['All', 'Debit Card', 'Credit Card', 'UPI', 'Net Banking'];
   const statusList = ['All', 'Successful', 'Declined', 'Failed'];
 
-  const fmtCurrency = (val: number) => {
-    if (val >= 1e9) return `$${(val / 1e9).toFixed(2)}B`;
-    if (val >= 1e6) return `$${(val / 1e6).toFixed(2)}M`;
-    if (val >= 1e3) return `$${(val / 1e3).toFixed(1)}k`;
-    return `$${val.toFixed(2)}`;
-  };
+  const fmtCurrency = (val: number) => formatCurrencyIN(val);
 
   return (
     <div className="space-y-6">
@@ -169,8 +181,8 @@ export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> =
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <KPICard
             title="Matched Ledger Records"
-            value={data.total.toLocaleString()}
-            subtitle={`Page ${data.page} of ${data.total_pages.toLocaleString()}`}
+            value={formatNumberIN(data.total)}
+            subtitle={`Page ${formatNumberIN(data.page)} of ${formatNumberIN(data.total_pages)}`}
             badge={{ text: 'Live Ledger', variant: 'primary' }}
             icon={<Receipt className="w-5 h-5 text-primary" />}
           />
@@ -182,7 +194,7 @@ export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> =
           />
           <KPICard
             title="Flagged Fraud Events"
-            value={data.summary_of_filtered.filtered_fraud_count.toLocaleString()}
+            value={formatNumberIN(data.summary_of_filtered.filtered_fraud_count)}
             subtitle={`Fraud Rate: ${data.summary_of_filtered.filtered_fraud_rate_pct}%`}
             badge={{ text: 'Risk Events', variant: 'danger' }}
             icon={<AlertTriangle className="w-5 h-5 text-danger" />}
@@ -198,56 +210,80 @@ export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> =
 
       {/* Visual Analytics Row: Pareto Vectors & Payment Rail Breakdown */}
       {distributions && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ChartCard
-            title="Fraud Vector Pareto Breakdown"
-            subtitle="Incident frequency across 8 distinct attack vectors"
-          >
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart
-                data={distributions.fraud_vectors_pareto}
-                layout="vertical"
-                margin={{ top: 5, right: 30, left: 60, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                <XAxis type="number" tick={{ fontSize: 10, fill: '#64748B' }} />
-                <YAxis
-                  type="category"
-                  dataKey="Fraud_Reason"
-                  tick={{ fontSize: 9, fill: '#0F172A' }}
-                  width={140}
-                  tickFormatter={(val) => (val.length > 20 ? `${val.substring(0, 20)}...` : val)}
-                />
-                <Tooltip
-                  formatter={(val: any) => [`${Number(val).toLocaleString()} incidents`, 'Count']}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
-                />
-                <Bar dataKey="fraud_count" fill="#EF4444" radius={[0, 6, 6, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <div className="flex flex-col">
+            <ChartCard
+              title="Fraud Vector Pareto Breakdown"
+              subtitle="Incident frequency across 8 distinct attack vectors"
+            >
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart
+                  data={distributions.fraud_vectors_pareto}
+                  layout="vertical"
+                  margin={{ top: 5, right: 30, left: 60, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                  <XAxis type="number" tick={{ fontSize: 10, fill: '#64748B' }} />
+                  <YAxis
+                    type="category"
+                    dataKey="Fraud_Reason"
+                    tick={{ fontSize: 9, fill: '#0F172A' }}
+                    width={140}
+                    tickFormatter={(val) => (val.length > 20 ? `${val.substring(0, 20)}...` : val)}
+                  />
+                  <Tooltip
+                    formatter={(val: any) => [`${Number(val).toLocaleString()} incidents`, 'Count']}
+                    contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
+                  />
+                  <Bar dataKey="fraud_count" fill="#EF4444" radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+            <ChartInsightBox
+              chartId="fraud_reasons"
+              chartTitle="Fraud Vector Pareto Breakdown"
+              timePeriod={startDate || endDate ? `${startDate || 'Start'} to ${endDate || 'End'}` : 'All Time (2023 - 2026)'}
+              summaryMetrics={{
+                vectors_count: distributions?.fraud_vectors_pareto?.length || 8,
+                top_vector: distributions?.fraud_vectors_pareto?.[0]?.Fraud_Reason || 'High-Risk Category Anomaly',
+                filtered_fraud_events: data?.summary_of_filtered?.filtered_fraud_count || 0
+              }}
+            />
+          </div>
 
-          <ChartCard
-            title="Payment Rail Distribution"
-            subtitle="Volume and fraud incidents by payment rail"
-          >
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={distributions.payment_rails}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                <XAxis dataKey="Payment_Method" tick={{ fontSize: 10, fill: '#64748B' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                <Tooltip
-                  formatter={(val: any, name: any) => [
-                    Number(val).toLocaleString(),
-                    name === 'total_txns' ? 'Total Txns' : 'Fraud Events',
-                  ]}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
-                />
-                <Bar dataKey="total_txns" name="Total Volume" fill="#2563EB" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="fraud_txns" name="Fraud Incidents" fill="#EF4444" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
+          <div className="flex flex-col">
+            <ChartCard
+              title="Payment Rail Distribution"
+              subtitle="Volume and fraud incidents by payment rail"
+            >
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={distributions.payment_rails}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                  <XAxis dataKey="Payment_Method" tick={{ fontSize: 10, fill: '#64748B' }} />
+                  <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip
+                    formatter={(val: any, name: any) => [
+                      Number(val).toLocaleString(),
+                      name === 'total_txns' ? 'Total Txns' : 'Fraud Events',
+                    ]}
+                    contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
+                  />
+                  <Bar dataKey="total_txns" name="Total Volume" fill="#2563EB" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="fraud_txns" name="Fraud Incidents" fill="#EF4444" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+            <ChartInsightBox
+              chartId="payment_rails"
+              chartTitle="Payment Rail Distribution"
+              timePeriod={startDate || endDate ? `${startDate || 'Start'} to ${endDate || 'End'}` : 'All Time (2023 - 2026)'}
+              summaryMetrics={{
+                rails_count: distributions?.payment_rails?.length || 4,
+                top_rail: 'Credit Card & UPI',
+                total_volume: fmtCurrency(data?.summary_of_filtered?.filtered_total_amount || 0)
+              }}
+            />
+          </div>
         </div>
       )}
 
@@ -445,7 +481,7 @@ export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> =
                             {txn.merchant_category}
                           </td>
                           <td className="py-3 px-4 text-right font-bold text-slate-heading tabular-nums">
-                            ${txn.transaction_amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            {formatExactCurrencyIN(txn.transaction_amount)}
                           </td>
                           <td className="py-3 px-4 text-slate-muted font-medium">
                             {txn.payment_method}
@@ -488,9 +524,9 @@ export const TransactionsExplorerPage: React.FC<TransactionsExplorerPageProps> =
               <div>
                 Showing{' '}
                 <span className="font-bold text-slate-heading tabular-nums">
-                  {Math.min(data.total, (page - 1) * pageSize + 1)}–{Math.min(data.total, page * pageSize)}
+                  {formatNumberIN(Math.min(data.total, (page - 1) * pageSize + 1))}–{formatNumberIN(Math.min(data.total, page * pageSize))}
                 </span>{' '}
-                of <span className="font-bold text-slate-heading tabular-nums">{data.total.toLocaleString()}</span> entries
+                of <span className="font-bold text-slate-heading tabular-nums">{formatNumberIN(data.total)}</span> entries
               </div>
 
               <div className="flex items-center gap-2">

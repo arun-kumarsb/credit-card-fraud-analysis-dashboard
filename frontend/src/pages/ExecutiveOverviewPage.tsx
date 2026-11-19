@@ -34,6 +34,8 @@ import { TemporalAnomalyHeatmap } from '../components/dashboard/TemporalAnomalyH
 import { CustomerSegmentDonut } from '../components/dashboard/CustomerSegmentDonut';
 import { StateFraudDensity } from '../components/dashboard/StateFraudDensity';
 import { ContextualAlerts } from '../components/dashboard/ContextualAlerts';
+import { ChartInsightBox } from '../components/common/ChartInsightBox';
+import { formatCurrencyIN, formatNumberIN, CURRENCY_SYMBOL } from '../utils/formatters';
 
 interface ExecutiveOverviewPageProps {
   startDate?: string;
@@ -44,7 +46,7 @@ interface ExecutiveOverviewPageProps {
 export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
   startDate,
   endDate,
-  currencyPrefix = '$'
+  currencyPrefix = CURRENCY_SYMBOL
 }) => {
   const [overview, setOverview] = useState<DashboardOverviewResponse | null>(null);
   const [trends, setTrends] = useState<DashboardTrendsResponse | null>(null);
@@ -101,11 +103,60 @@ export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
   const topStateNames = sortedStates.slice(0, 2).map((s) => s.Customer_State);
 
   // Currency Formatter
-  const fmtCurrency = (val: number) => {
-    if (val >= 1e9) return `${currencyPrefix}${(val / 1e9).toFixed(2)}B`;
-    if (val >= 1e6) return `${currencyPrefix}${(val / 1e6).toFixed(2)}M`;
-    if (val >= 1e3) return `${currencyPrefix}${(val / 1e3).toFixed(1)}k`;
-    return `${currencyPrefix}${val.toFixed(2)}`;
+  const fmtCurrency = (val: number) => formatCurrencyIN(val);
+
+  const timePeriodLabel = startDate || endDate 
+    ? `${startDate || 'Start'} to ${endDate || 'End'}`
+    : 'All Time (2023 - 2026)';
+
+  const peakMonth = trends.monthly_trends.length > 0
+    ? trends.monthly_trends.reduce(
+        (max, m) => (m.fraud_amount > (max?.fraud_amount || 0) ? m : max),
+        trends.monthly_trends[0]
+      )
+    : null;
+
+  const macroTrendMetrics = {
+    total_volume: fmtCurrency(kpis.total_volume_amount),
+    fraud_volume: fmtCurrency(kpis.fraud_volume_amount),
+    fraud_ratio: `${kpis.fraud_value_rate_pct.toFixed(1)}%`,
+    peak_month: peakMonth?.Year_Month || '2026-06',
+    peak_loss: fmtCurrency(peakMonth?.fraud_amount || 0),
+    total_months: trends.monthly_trends.length
+  };
+
+  const gaugeMetrics = {
+    fraud_rate_pct: `${fraud_loss_share.fraud_volume_pct.toFixed(2)}%`,
+    fraud_amount: fmtCurrency(fraud_loss_share.fraud_loss_amount),
+    legit_amount: fmtCurrency(fraud_loss_share.legit_volume_amount),
+    fraud_transactions: kpis.fraud_transactions,
+    total_transactions: kpis.total_transactions
+  };
+
+  const heatmapMetrics = {
+    peak_hours: "00:00 – 04:00 (Midnight to 4 AM)",
+    peak_days: "Friday & Saturday nights",
+    surge_rate: "35%+",
+    total_flagged: kpis.fraud_transactions
+  };
+
+  const segmentMetrics = {
+    top_segment: topSeg?.Customer_Segment || 'Platinum',
+    top_segment_loss: `${topSegLossPct.toFixed(1)}%`,
+    segments_evaluated: customer_segments.length
+  };
+
+  const stateMetrics = {
+    top_state: sortedStates[0]?.Customer_State || 'Uttar Pradesh',
+    top_state_loss: fmtCurrency(sortedStates[0]?.fraud_amount || 0),
+    top5_share: `${topStatesConcentration.toFixed(1)}%`,
+    states_count: states.length
+  };
+
+  const categoryMetrics = {
+    top_category: topCat?.Merchant_Category || 'Hotels & Travel',
+    top_loss: fmtCurrency(topCat?.fraud_amount || 0),
+    categories_evaluated: top_categories.length
   };
 
   return (
@@ -119,7 +170,7 @@ export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
             <span className="font-mono">{startDate || 'Start'} to {endDate || 'End'}</span>
           </div>
           <span className="text-[11px] font-bold bg-white px-2 py-0.5 rounded-full border border-primary/30">
-            {kpis.total_transactions.toLocaleString()} Filtered Txns
+            {formatNumberIN(kpis.total_transactions)} Filtered Txns
           </span>
         </div>
       )}
@@ -129,7 +180,7 @@ export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
         <KPICard
           title="Gross Transaction Volume"
           value={fmtCurrency(kpis.total_volume_amount)}
-          subtitle={`${kpis.total_transactions.toLocaleString()} Verified Transactions`}
+          subtitle={`${formatNumberIN(kpis.total_transactions)} Verified Transactions`}
           badge={{ text: startDate || endDate ? 'Filtered' : '2023 - 2026', variant: 'primary' }}
           icon={<DollarSign className="w-5 h-5 text-primary" />}
         />
@@ -143,7 +194,7 @@ export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
         <KPICard
           title="Fraud Incident Rate"
           value={`${kpis.fraud_rate_pct.toFixed(2)}%`}
-          subtitle={`${kpis.fraud_transactions.toLocaleString()} Flagged Events`}
+          subtitle={`${formatNumberIN(kpis.fraud_transactions)} Flagged Events`}
           badge={{ text: 'Attack Density', variant: 'warning' }}
           icon={<Activity className="w-5 h-5 text-amber-500" />}
         />
@@ -157,19 +208,25 @@ export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
       </div>
 
       {/* 2. PRIMARY ROW: 3-YEAR TREND & SEMICIRCULAR OVERALL FRAUD LOSS GAUGE */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* 3-Year Gross Volume vs Fraud Loss Spline Chart from Stitch Reference (spans 2 columns) */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 flex flex-col">
           <MacroVolumeTrendChart
             monthlyData={trends.monthly_trends}
             totalGross={kpis.total_volume_amount}
             totalFraud={kpis.fraud_volume_amount}
             currencyPrefix={currencyPrefix}
           />
+          <ChartInsightBox
+            chartId="macro_volume_trend"
+            chartTitle="3-Year Gross Volume vs Fraud Loss"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={macroTrendMetrics}
+          />
         </div>
 
         {/* Semicircular Overall Fraud Loss Gauge (spans 1 column) */}
-        <div>
+        <div className="flex flex-col">
           <SemicircularGauge
             fraudPct={fraud_loss_share.fraud_volume_pct}
             legitPct={fraud_loss_share.legit_volume_pct}
@@ -179,75 +236,121 @@ export const ExecutiveOverviewPage: React.FC<ExecutiveOverviewPageProps> = ({
             totalTransactions={kpis.total_transactions}
             currencyPrefix={currencyPrefix}
           />
+          <ChartInsightBox
+            chartId="loss_share_gauge"
+            chartTitle="Overall Fraud Loss Share Gauge"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={gaugeMetrics}
+          />
         </div>
       </div>
 
       {/* 3. MISSING STITCH VISUALIZATIONS ROW (3 EQUAL COLUMNS) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
         {/* Card 1: Temporal Anomaly Matrix (Heatmap) */}
-        <TemporalAnomalyHeatmap data={trends.temporal_heatmap} />
+        <div className="flex flex-col">
+          <TemporalAnomalyHeatmap data={trends.temporal_heatmap} />
+          <ChartInsightBox
+            chartId="temporal_heatmap"
+            chartTitle="24×7 Temporal Anomaly Matrix"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={heatmapMetrics}
+          />
+        </div>
 
         {/* Card 2: Customer Segment Exposure Donut */}
-        <CustomerSegmentDonut
-          segments={customer_segments}
-          currencyPrefix={currencyPrefix}
-        />
+        <div className="flex flex-col">
+          <CustomerSegmentDonut
+            segments={customer_segments}
+            currencyPrefix={currencyPrefix}
+          />
+          <ChartInsightBox
+            chartId="customer_segments"
+            chartTitle="Customer Segment Exposure"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={segmentMetrics}
+          />
+        </div>
 
         {/* Card 3: State Fraud Density (India Matrix & Top 5 States) */}
-        <StateFraudDensity
-          states={distributions.state_density}
-          currencyPrefix={currencyPrefix}
-        />
+        <div className="flex flex-col">
+          <StateFraudDensity
+            states={distributions.state_density}
+            currencyPrefix={currencyPrefix}
+          />
+          <ChartInsightBox
+            chartId="state_density"
+            chartTitle="State Fraud Density Map"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={stateMetrics}
+          />
+        </div>
       </div>
 
       {/* 4. DEEP-DIVE PORTFOLIO DISTRIBUTIONS (2 EQUAL COLUMNS) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Grouped Bar Chart: Customer Segment Volume vs Loss */}
-        <ChartCard
-          title="Customer Segment Volume vs. Loss Comparison"
-          subtitle="Total volume and net fraud losses across portfolio tiers"
-        >
-          <ResponsiveContainer width="100%" height={270}>
-            <BarChart data={customer_segments}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-              <XAxis dataKey="Customer_Segment" tick={{ fontSize: 11, fill: '#64748B' }} />
-              <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => fmtCurrency(v)} />
-              <Tooltip
-                formatter={(val: any, name: any) => [
-                  fmtCurrency(Number(val)),
-                  name === 'total_amount' ? 'Total Volume' : 'Fraud Loss',
-                ]}
-                contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
-              />
-              <Legend verticalAlign="top" height={36} iconType="circle" />
-              <Bar dataKey="total_amount" name="Total Volume" fill="#2563EB" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="fraud_amount" name="Fraud Loss" fill="#EF4444" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
+        <div className="flex flex-col">
+          <ChartCard
+            title="Customer Segment Volume vs. Loss Comparison"
+            subtitle="Total volume and net fraud losses across portfolio tiers"
+          >
+            <ResponsiveContainer width="100%" height={270}>
+              <BarChart data={customer_segments}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                <XAxis dataKey="Customer_Segment" tick={{ fontSize: 11, fill: '#64748B' }} />
+                <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => fmtCurrency(v)} />
+                <Tooltip
+                  formatter={(val: any, name: any) => [
+                    fmtCurrency(Number(val)),
+                    name === 'total_amount' ? 'Total Volume' : 'Fraud Loss',
+                  ]}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
+                />
+                <Legend verticalAlign="top" height={36} iconType="circle" />
+                <Bar dataKey="total_amount" name="Total Volume" fill="#2563EB" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="fraud_amount" name="Fraud Loss" fill="#EF4444" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+          <ChartInsightBox
+            chartId="customer_segments"
+            chartTitle="Customer Segment Volume vs. Loss"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={segmentMetrics}
+          />
+        </div>
 
         {/* Horizontal Bar Chart: Top 8 Targeted Merchant Categories */}
-        <ChartCard
-          title="Top 8 Targeted Merchant Categories"
-          subtitle="Ranked by total financial fraud loss across MCC clusters"
-        >
-          <ResponsiveContainer width="100%" height={270}>
-            <BarChart
-              data={top_categories}
-              layout="vertical"
-              margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-              <XAxis type="number" tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => fmtCurrency(v)} />
-              <YAxis type="category" dataKey="Merchant_Category" tick={{ fontSize: 10, fill: '#0F172A' }} />
-              <Tooltip
-                formatter={(val: any) => [fmtCurrency(Number(val)), 'Fraud Loss']}
-                contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
-              />
-              <Bar dataKey="fraud_amount" name="Fraud Loss" fill="#BA1A1A" radius={[0, 6, 6, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
+        <div className="flex flex-col">
+          <ChartCard
+            title="Top 8 Targeted Merchant Categories"
+            subtitle="Ranked by total financial fraud loss across MCC clusters"
+          >
+            <ResponsiveContainer width="100%" height={270}>
+              <BarChart
+                data={top_categories}
+                layout="vertical"
+                margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                <XAxis type="number" tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => fmtCurrency(v)} />
+                <YAxis type="category" dataKey="Merchant_Category" tick={{ fontSize: 10, fill: '#0F172A' }} />
+                <Tooltip
+                  formatter={(val: any) => [fmtCurrency(Number(val)), 'Fraud Loss']}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
+                />
+                <Bar dataKey="fraud_amount" name="Fraud Loss" fill="#BA1A1A" radius={[0, 6, 6, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+          <ChartInsightBox
+            chartId="category_risk"
+            chartTitle="Top 8 Targeted Merchant Categories"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={categoryMetrics}
+          />
+        </div>
       </div>
 
       {/* 5. CONTEXTUAL ANALYTICAL ALERTS */}

@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { DataQualityResponse } from '../types/api';
 import { KPICard } from '../components/common/KPICard';
 import { LoadingSkeleton, ErrorState } from '../components/common/LoadingSkeleton';
+import { formatNumberIN } from '../utils/formatters';
 
 export const DataQualityPage: React.FC = () => {
   const [data, setData] = useState<DataQualityResponse | null>(null);
@@ -44,9 +45,9 @@ export const DataQualityPage: React.FC = () => {
         />
         <KPICard
           title="Total Events Reconciled"
-          value={data.summary.total_transactions.toLocaleString()}
+          value={formatNumberIN(data.summary.total_transactions)}
           subtitle="All Raw Events Preserved"
-          badge={{ text: '250,000 Txns', variant: 'primary' }}
+          badge={{ text: '2,50,000 Txns', variant: 'primary' }}
           icon={<Database className="w-5 h-5 text-primary" />}
         />
         <KPICard
@@ -102,7 +103,7 @@ export const DataQualityPage: React.FC = () => {
                 <td className="py-3 px-4 text-right font-bold text-emerald-600 tabular-nums">0</td>
                 <td className="py-3 px-4 text-right text-slate-muted tabular-nums">0</td>
                 <td className="py-3 px-4 text-slate-body">
-                  Imputed 236,527 legitimate null reasons as <code>'Legitimate / None'</code>; preserved high-value outliers up to $1.88M; parsed ISO dates & hours.
+                  Imputed 2,36,527 legitimate null reasons as <code>'Legitimate / None'</code>; preserved high-value outliers up to ₹18.84 L; parsed ISO dates & hours.
                 </td>
                 <td className="py-3 px-4 text-center">
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-success-light text-success-dark">PASSED</span>
@@ -116,7 +117,7 @@ export const DataQualityPage: React.FC = () => {
                 <td className="py-3 px-4 text-right font-bold text-emerald-600 tabular-nums">0</td>
                 <td className="py-3 px-4 text-right text-slate-muted tabular-nums">0</td>
                 <td className="py-3 px-4 text-slate-body">
-                  Validated credit limit ranges ($50k–$1.5M); parsed ISO issue & expiry dates; verified 100% FK linkage to customer table.
+                  Validated credit limit ranges (₹50k–₹15 L); parsed ISO issue & expiry dates; verified 100% FK linkage to customer table.
                 </td>
                 <td className="py-3 px-4 text-center">
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-success-light text-success-dark">PASSED</span>

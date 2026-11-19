@@ -11,7 +11,8 @@ from backend.app.routers import (
     customers,
     cards,
     merchants,
-    data_quality
+    data_quality,
+    insights
 )
 
 app = FastAPI(
@@ -43,6 +44,7 @@ app.include_router(customers.router)
 app.include_router(cards.router)
 app.include_router(merchants.router)
 app.include_router(data_quality.router)
+app.include_router(insights.router)
 
 @app.get("/", tags=["Health"])
 def root():

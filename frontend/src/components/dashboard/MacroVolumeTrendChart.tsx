@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { TrendingUp } from 'lucide-react';
 import { MonthlyTrendItem } from '../../types/api';
+import { formatCurrencyIN, formatNumberIN, CURRENCY_SYMBOL } from '../../utils/formatters';
 
 interface MacroVolumeTrendChartProps {
   monthlyData: MonthlyTrendItem[];
@@ -13,16 +14,11 @@ export const MacroVolumeTrendChart: React.FC<MacroVolumeTrendChartProps> = ({
   monthlyData,
   totalGross,
   totalFraud,
-  currencyPrefix = '$',
+  currencyPrefix = CURRENCY_SYMBOL,
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const fmtCurrency = (val: number) => {
-    if (val >= 1e9) return `${currencyPrefix}${(val / 1e9).toFixed(2)}B`;
-    if (val >= 1e6) return `${currencyPrefix}${(val / 1e6).toFixed(1)}M`;
-    if (val >= 1e3) return `${currencyPrefix}${(val / 1e3).toFixed(1)}k`;
-    return `${currencyPrefix}${val.toFixed(2)}`;
-  };
+  const fmtCurrency = (val: number) => formatCurrencyIN(val);
 
   // Dimensions of the SVG canvas
   const svgWidth = 800;

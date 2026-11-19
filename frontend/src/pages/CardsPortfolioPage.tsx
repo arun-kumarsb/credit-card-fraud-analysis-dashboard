@@ -24,7 +24,9 @@ import { api } from '../services/api';
 import { CardAnalyticsResponse } from '../types/api';
 import { KPICard } from '../components/common/KPICard';
 import { ChartCard } from '../components/common/ChartCard';
+import { ChartInsightBox } from '../components/common/ChartInsightBox';
 import { LoadingSkeleton, ErrorState } from '../components/common/LoadingSkeleton';
+import { formatCurrencyIN, formatExactCurrencyIN, formatNumberIN } from '../utils/formatters';
 
 interface CardsPortfolioPageProps {
   startDate?: string;
@@ -68,12 +70,28 @@ export const CardsPortfolioPage: React.FC<CardsPortfolioPageProps> = ({
     Lost: '#BA1A1A'
   };
 
-  const fmtCurrency = (val: number) => {
-    if (!val) return '$0';
-    if (val >= 1e9) return `$${(val / 1e9).toFixed(2)}B`;
-    if (val >= 1e6) return `$${(val / 1e6).toFixed(2)}M`;
-    if (val >= 1e3) return `$${(val / 1e3).toFixed(1)}k`;
-    return `$${val.toFixed(0)}`;
+  const fmtCurrency = (val: number) => formatCurrencyIN(val);
+
+  const timePeriodLabel = startDate || endDate 
+    ? `${startDate || 'Start'} to ${endDate || 'End'}`
+    : 'All Time (2023 - 2026)';
+
+  const networkMetrics = {
+    networks_count: data.network_distribution?.length || 4,
+    top_networks: "Visa and RuPay",
+    total_cards: data.total_cards
+  };
+
+  const statusMetrics = {
+    active_cards: "30,463 (93.9%)",
+    attrition_cards: "1,994",
+    expired_blocked_risk: "High risk credential testing target"
+  };
+
+  const limitMetrics = {
+    avg_credit_limit: formatExactCurrencyIN(data.avg_credit_limit),
+    highest_exposure_tier: ">₹5 Lakhs Tier",
+    tiers_count: data.limit_tier_risk?.length || 4
   };
 
   return (
@@ -82,7 +100,7 @@ export const CardsPortfolioPage: React.FC<CardsPortfolioPageProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Total Card Portfolio"
-          value={data.total_cards.toLocaleString()}
+          value={formatNumberIN(data.total_cards)}
           subtitle="Issued Across 25,000 Customers"
           badge={{ text: '1.30 Cards/User', variant: 'primary' }}
           icon={<CreditCard className="w-5 h-5 text-primary" />}
@@ -90,7 +108,7 @@ export const CardsPortfolioPage: React.FC<CardsPortfolioPageProps> = ({
         <KPICard
           title="Credit Limit Exposure"
           value={fmtCurrency(data.total_credit_limit_exposure)}
-          subtitle={`Avg Limit: $${data.avg_credit_limit.toLocaleString()}`}
+          subtitle={`Avg Limit: ${formatExactCurrencyIN(data.avg_credit_limit)}`}
           badge={{ text: 'Underwritten', variant: 'neutral' }}
           icon={<ShieldCheck className="w-5 h-5 text-emerald-600" />}
         />
@@ -111,109 +129,140 @@ export const CardsPortfolioPage: React.FC<CardsPortfolioPageProps> = ({
       </div>
 
       {/* Row 1: Network Share & Card Tier Distribution */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Card Network Distribution */}
-        <ChartCard
-          title="Payment Network Market Share"
-          subtitle="Distribution of issued cards across major payment networks"
-          height={260}
-        >
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={data.network_distribution || []}
-                dataKey="count"
-                nameKey="network"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                label={({ payload, percent }) => `${payload?.network || ''} (${((percent || 0) * 100).toFixed(1)}%)`}
-              >
-                {(data.network_distribution || []).map((_, index: number) => (
-                  <Cell key={`cell-${index}`} fill={networkColors[index % networkColors.length]} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(val: any) => [`${Number(val).toLocaleString()} cards`, 'Issued']}
-                contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </ChartCard>
+        <div className="flex flex-col">
+          <ChartCard
+            title="Payment Network Market Share"
+            subtitle="Distribution of issued cards across major payment networks"
+            height={260}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data.network_distribution || []}
+                  dataKey="count"
+                  nameKey="network"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label={({ payload, percent }) => `${payload?.network || ''} (${((percent || 0) * 100).toFixed(1)}%)`}
+                >
+                  {(data.network_distribution || []).map((_, index: number) => (
+                    <Cell key={`cell-${index}`} fill={networkColors[index % networkColors.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(val: any) => [`${formatNumberIN(Number(val))} cards`, 'Issued']}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </ChartCard>
+          <ChartInsightBox
+            chartId="network_share"
+            chartTitle="Payment Network Market Share"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={networkMetrics}
+          />
+        </div>
 
         {/* Card Tier Distribution (Gold, Silver, Classic, Platinum) */}
-        <ChartCard
-          title="Card Tier Portfolio Mix"
-          subtitle="Card count per membership tier (Gold, Silver, Classic, Platinum)"
-          height={260}
-        >
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data.card_type_distribution || []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-              <XAxis dataKey="tier" tick={{ fontSize: 11, fill: '#64748B' }} />
-              <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-              <Tooltip
-                formatter={(val: any) => [`${Number(val).toLocaleString()} cards`, 'Count']}
-                contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
-              />
-              <Bar dataKey="count" name="Cards" fill="#2563EB" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
+        <div className="flex flex-col">
+          <ChartCard
+            title="Card Tier Portfolio Mix"
+            subtitle="Card count per membership tier (Gold, Silver, Classic, Platinum)"
+            height={260}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data.card_type_distribution || []}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                <XAxis dataKey="tier" tick={{ fontSize: 11, fill: '#64748B' }} />
+                <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                <Tooltip
+                  formatter={(val: any) => [`${Number(val).toLocaleString()} cards`, 'Count']}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
+                />
+                <Bar dataKey="count" name="Cards" fill="#2563EB" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+          <ChartInsightBox
+            chartId="cards_portfolio"
+            chartTitle="Card Tier Portfolio Mix"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={networkMetrics}
+          />
+        </div>
       </div>
 
       {/* Row 2: Operational Status & Credit Limit Tier Exposure */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Operational Status Breakdown */}
-        <ChartCard
-          title="Operational Status Breakdown"
-          subtitle="Active, Expired, Blocked, and Lost card state lifecycle"
-          height={260}
-        >
-          <div className="space-y-3 flex flex-col justify-center h-full">
-            {(data.operational_status_distribution || []).map((st: any) => {
-              const color = statusColors[st.status] || '#64748B';
-              return (
-                <div key={st.status} className="p-3 rounded-xl bg-slate-50 border border-slate-hairline flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }}></span>
-                    <span className="font-bold text-xs text-slate-heading">{st.status} Cards</span>
+        <div className="flex flex-col">
+          <ChartCard
+            title="Operational Status Breakdown"
+            subtitle="Active, Expired, Blocked, and Lost card state lifecycle"
+            height={260}
+          >
+            <div className="space-y-3 flex flex-col justify-center h-full">
+              {(data.operational_status_distribution || []).map((st: any) => {
+                const color = statusColors[st.status] || '#64748B';
+                return (
+                  <div key={st.status} className="p-3 rounded-xl bg-slate-50 border border-slate-hairline flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }}></span>
+                      <span className="font-bold text-xs text-slate-heading">{st.status} Cards</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-xs text-slate-heading tabular-nums">{(st.count || 0).toLocaleString()}</div>
+                      <div className="text-[10px] text-slate-muted">{st.pct}% of portfolio</div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold text-xs text-slate-heading tabular-nums">{(st.count || 0).toLocaleString()}</div>
-                    <div className="text-[10px] text-slate-muted">{st.pct}% of portfolio</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </ChartCard>
+                );
+              })}
+            </div>
+          </ChartCard>
+          <ChartInsightBox
+            chartId="card_lifecycle"
+            chartTitle="Operational Status Breakdown"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={statusMetrics}
+          />
+        </div>
 
         {/* Credit Limit Tier Risk & Exposure (spans 2 columns) */}
-        <ChartCard
-          title="Credit Limit Tier Exposure vs. Fraud Loss"
-          subtitle="Financial fraud damage experienced by card credit limit tiers"
-          className="lg:col-span-2"
-          height={260}
-        >
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data.limit_tier_risk || []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-              <XAxis dataKey="credit_limit_tier" tick={{ fontSize: 10, fill: '#64748B' }} />
-              <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => `$${(v / 1e6).toFixed(0)}M`} />
-              <Tooltip
-                formatter={(val: any, name: any) => [
-                  `$${Number(val).toLocaleString()}`,
-                  name === 'total_amount' ? 'Total Volume' : 'Fraud Loss',
-                ]}
-                contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
-              />
-              <Legend verticalAlign="top" height={36} iconType="circle" />
-              <Bar dataKey="total_amount" name="Total Volume" fill="#2563EB" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="fraud_amount" name="Fraud Loss" fill="#EF4444" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
+        <div className="lg:col-span-2 flex flex-col">
+          <ChartCard
+            title="Credit Limit Tier Exposure vs. Fraud Loss"
+            subtitle="Financial fraud damage experienced by card credit limit tiers"
+            height={260}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data.limit_tier_risk || []}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                <XAxis dataKey="credit_limit_tier" tick={{ fontSize: 10, fill: '#64748B' }} />
+                <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => formatCurrencyIN(v)} />
+                <Tooltip
+                  formatter={(val: any, name: any) => [
+                    formatExactCurrencyIN(Number(val)),
+                    name === 'total_amount' ? 'Total Volume' : 'Fraud Loss',
+                  ]}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
+                />
+                <Legend verticalAlign="top" height={36} iconType="circle" />
+                <Bar dataKey="total_amount" name="Total Volume" fill="#2563EB" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="fraud_amount" name="Fraud Loss" fill="#EF4444" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+          <ChartInsightBox
+            chartId="cards_portfolio"
+            chartTitle="Credit Limit Tier Exposure vs. Fraud Loss"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={limitMetrics}
+          />
+        </div>
       </div>
 
       {/* Form Factor & Tokenization Technology Callout */}

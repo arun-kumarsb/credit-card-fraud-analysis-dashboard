@@ -220,3 +220,23 @@ export interface DataQualityResponse {
   };
   datasets: Record<string, any>;
 }
+
+export interface ChartInsightRequest {
+  chart_id: string;
+  chart_title: string;
+  time_period: string;
+  summary_metrics: Record<string, any>;
+  api_key?: string;
+}
+
+export interface ChartInsightResponse {
+  chart_id: string;
+  chart_title: string;
+  time_period: string;
+  purpose: string;
+  output_delivered: string;
+  observation: string;
+  risk_vector: string;
+  recommended_action: string;
+  source: string;
+}

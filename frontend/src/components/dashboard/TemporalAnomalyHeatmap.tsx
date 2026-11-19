@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Moon, Sun, AlertTriangle } from 'lucide-react';
+import { formatNumberIN } from '../../utils/formatters';
 
 interface HeatmapEntry {
   Day_of_Week: string;
@@ -163,7 +164,7 @@ export const TemporalAnomalyHeatmap: React.FC<TemporalAnomalyHeatmapProps> = ({ 
         <div className="mb-4 p-3 rounded-xl bg-red-50/70 border border-red-100 flex items-start gap-2.5">
           <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
           <p className="text-xs text-slate-body">
-            <strong className="text-red-700 font-bold">{peakInterval} Surge:</strong> Peak anomalous window with <strong className="text-red-700 font-bold">{peakFraudCount.toLocaleString()}</strong> confirmed fraud incidents across aggregated cycles.
+            <strong className="text-red-700 font-bold">{peakInterval} Surge:</strong> Peak anomalous window with <strong className="text-red-700 font-bold">{formatNumberIN(peakFraudCount)}</strong> confirmed fraud incidents across aggregated cycles.
           </p>
         </div>
 

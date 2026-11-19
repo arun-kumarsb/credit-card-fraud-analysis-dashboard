@@ -23,7 +23,7 @@ export const MLPredictorPage: React.FC = () => {
           <div className="flex flex-wrap gap-4 text-xs">
             <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur border border-white/15 flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>Phase 1 (Active): 250k Ledger & Visual Analytics</span>
+              <span>Phase 1 (Active): 2.5 Lakh Ledger & Visual Analytics</span>
             </div>
             <div className="px-4 py-2.5 rounded-xl bg-amber-500/20 backdrop-blur border border-amber-500/30 text-amber-200 flex items-center gap-2">
               <Clock className="w-4 h-4 text-amber-400" />

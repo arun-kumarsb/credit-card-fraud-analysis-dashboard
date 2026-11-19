@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { MapPin, Globe, Share2 } from 'lucide-react';
+import { formatCurrencyIN, formatNumberIN, CURRENCY_SYMBOL } from '../../utils/formatters';
 
 interface StateData {
   Customer_State: string;
@@ -17,14 +18,9 @@ interface StateFraudDensityProps {
 
 export const StateFraudDensity: React.FC<StateFraudDensityProps> = ({
   states,
-  currencyPrefix = '$'
+  currencyPrefix = CURRENCY_SYMBOL
 }) => {
-  const fmtCurrency = (val: number) => {
-    if (val >= 1e9) return `${currencyPrefix}${(val / 1e9).toFixed(2)}B`;
-    if (val >= 1e6) return `${currencyPrefix}${(val / 1e6).toFixed(1)}M`;
-    if (val >= 1e3) return `${currencyPrefix}${(val / 1e3).toFixed(1)}k`;
-    return `${currencyPrefix}${val.toFixed(2)}`;
-  };
+  const fmtCurrency = (val: number) => formatCurrencyIN(val);
 
   // State coordinate mapping on India abstract SVG canvas (200x120)
   const stateCoordinates: Record<string, { cx: number; cy: number; color: string }> = {

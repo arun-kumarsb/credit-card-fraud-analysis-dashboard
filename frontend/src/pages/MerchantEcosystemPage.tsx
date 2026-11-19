@@ -21,8 +21,10 @@ import { api } from '../services/api';
 import { MerchantAnalyticsResponse } from '../types/api';
 import { KPICard } from '../components/common/KPICard';
 import { ChartCard } from '../components/common/ChartCard';
+import { ChartInsightBox } from '../components/common/ChartInsightBox';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { LoadingSkeleton, ErrorState } from '../components/common/LoadingSkeleton';
+import { formatCurrencyIN, formatExactCurrencyIN, formatNumberIN } from '../utils/formatters';
 
 interface MerchantEcosystemPageProps {
   startDate?: string;
@@ -58,13 +60,34 @@ export const MerchantEcosystemPage: React.FC<MerchantEcosystemPageProps> = ({
   if (error) return <ErrorState message={error} onRetry={fetchMerchantAnalytics} />;
   if (!data) return null;
 
+  const timePeriodLabel = startDate || endDate 
+    ? `${startDate || 'Start'} to ${endDate || 'End'}`
+    : 'All Time (2023 - 2026)';
+
+  const categoryMetrics = {
+    top_category: "Hotels & Travel",
+    top_cat_loss_share: "30.8%",
+    low_category: "Grocery and Supermarkets",
+    categories_count: data.category_risk_comparison?.length || 15
+  };
+
+  const riskMetrics = {
+    total_merchants: data.total_merchants,
+    risk_tiers: data.risk_level_distribution?.length || 3
+  };
+
+  const ratingMetrics = {
+    rating_spread: "3.5 to 5.0 Stars",
+    inverse_correlation: "Lower ratings correlate with higher fraud chargeback frequency"
+  };
+
   return (
     <div className="space-y-6">
       {/* 4 Top KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Merchant Ecosystem"
-          value={data.total_merchants.toLocaleString()}
+          value={formatNumberIN(data.total_merchants)}
           subtitle="15 Categories, 80 National Brands"
           badge={{ text: '100% Active Directory', variant: 'primary' }}
           icon={<Store className="w-5 h-5 text-primary" />}
@@ -86,86 +109,110 @@ export const MerchantEcosystemPage: React.FC<MerchantEcosystemPageProps> = ({
         <KPICard
           title="High-Risk Sector"
           value="Hotels & Travel"
-          subtitle="$254M Combined Fraud Exposure"
+          subtitle="₹25.48 Cr Combined Fraud Exposure"
           badge={{ text: 'Critical Sector', variant: 'warning' }}
           icon={<Building2 className="w-5 h-5 text-indigo-600" />}
         />
       </div>
 
       {/* Row 1: 15 Categories Volume vs Fraud Loss */}
-      <ChartCard
-        title="15 Merchant Categories: Total Volume vs. Fraud Loss"
-        subtitle="Comparative analysis of transaction capital vs fraud drain across merchant sectors (in Millions USD)"
-        height={300}
-      >
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data.category_risk_comparison || []}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-            <XAxis dataKey="Merchant_Category" tick={{ fontSize: 9, fill: '#0F172A' }} interval={0} angle={-30} textAnchor="end" height={60} />
-            <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => `$${(v / 1e6).toFixed(0)}M`} />
-            <Tooltip
-              formatter={(val: any, name: any) => [
-                `$${Number(val).toLocaleString()}`,
-                name === 'total_amount' ? 'Total Volume' : 'Fraud Loss',
-              ]}
-              contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
-            />
-            <Legend verticalAlign="top" height={36} iconType="circle" />
-            <Bar dataKey="total_amount" name="Total Volume" fill="#2563EB" radius={[6, 6, 0, 0]} />
-            <Bar dataKey="fraud_amount" name="Fraud Loss" fill="#EF4444" radius={[6, 6, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </ChartCard>
-
-      {/* Row 2: Merchant Risk Exposure & Rating vs Fraud Rate */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Merchant Risk Level Breakdown */}
+      <div className="flex flex-col">
         <ChartCard
-          title="Merchant Risk Level Distribution"
-          subtitle="Proportion of merchants categorized by automated risk engines"
-          height={260}
-        >
-          <div className="space-y-4 flex flex-col justify-center h-full">
-            {(data.risk_level_distribution || []).map((r: any) => {
-              const pct = ((r.count / data.total_merchants) * 100).toFixed(1);
-              return (
-                <div key={r.merchant_risk_level} className="p-4 rounded-xl bg-slate-50 border border-slate-hairline">
-                  <div className="flex justify-between items-center mb-1 text-xs">
-                    <div className="flex items-center gap-2">
-                      <StatusBadge status={r.merchant_risk_level} type="risk" />
-                      <span className="font-semibold text-slate-heading">Risk Classification</span>
-                    </div>
-                    <span className="font-bold text-slate-heading tabular-nums">{r.count} Merchants ({pct}%)</span>
-                  </div>
-                  <div className="flex justify-between text-[11px] text-slate-muted mt-2">
-                    <span>Average Merchant Rating: ★ {r.avg_rating}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </ChartCard>
-
-        {/* Rating vs Fraud Rate Correlation */}
-        <ChartCard
-          title="Merchant Rating vs. Fraud Rate Matrix"
-          subtitle="Correlation between public customer rating and detected fraud incident rates"
-          height={260}
+          title="15 Merchant Categories: Total Volume vs. Fraud Loss"
+          subtitle="Comparative analysis of transaction capital vs fraud drain across merchant sectors (in Crores / Lakhs INR)"
+          height={300}
         >
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data.rating_vs_fraud || []}>
+            <BarChart data={data.category_risk_comparison || []}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-              <XAxis dataKey="merchant_rating" tick={{ fontSize: 10, fill: '#64748B' }} label={{ value: 'Star Rating', position: 'insideBottom', offset: -5, fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10, fill: '#64748B' }} unit="%" />
+              <XAxis dataKey="Merchant_Category" tick={{ fontSize: 9, fill: '#0F172A' }} interval={0} angle={-30} textAnchor="end" height={60} />
+              <YAxis tick={{ fontSize: 10, fill: '#64748B' }} tickFormatter={(v) => formatCurrencyIN(v)} />
               <Tooltip
-                formatter={(val: any) => [`${Number(val).toFixed(2)}%`, 'Fraud Rate']}
-                labelFormatter={(lbl) => `Rating: ★ ${lbl}`}
+                formatter={(val: any, name: any) => [
+                  formatExactCurrencyIN(Number(val)),
+                  name === 'total_amount' ? 'Total Volume' : 'Fraud Loss',
+                ]}
                 contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
               />
-              <Line type="monotone" dataKey="fraud_rate_pct" name="Fraud Rate (%)" stroke="#EF4444" strokeWidth={2.5} dot={{ r: 4, fill: '#EF4444' }} />
-            </LineChart>
+              <Legend verticalAlign="top" height={36} iconType="circle" />
+              <Bar dataKey="total_amount" name="Total Volume" fill="#2563EB" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="fraud_amount" name="Fraud Loss" fill="#EF4444" radius={[6, 6, 0, 0]} />
+            </BarChart>
           </ResponsiveContainer>
         </ChartCard>
+        <ChartInsightBox
+          chartId="merchant_risk"
+          chartTitle="15 Merchant Categories: Volume vs. Loss"
+          timePeriod={timePeriodLabel}
+          summaryMetrics={categoryMetrics}
+        />
+      </div>
+
+      {/* Row 2: Merchant Risk Exposure & Rating vs Fraud Rate */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        {/* Merchant Risk Level Breakdown */}
+        <div className="flex flex-col">
+          <ChartCard
+            title="Merchant Risk Level Distribution"
+            subtitle="Proportion of merchants categorized by automated risk engines"
+            height={260}
+          >
+            <div className="space-y-4 flex flex-col justify-center h-full">
+              {(data.risk_level_distribution || []).map((r: any) => {
+                const pct = ((r.count / data.total_merchants) * 100).toFixed(1);
+                return (
+                  <div key={r.merchant_risk_level} className="p-4 rounded-xl bg-slate-50 border border-slate-hairline">
+                    <div className="flex justify-between items-center mb-1 text-xs">
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={r.merchant_risk_level} type="risk" />
+                        <span className="font-semibold text-slate-heading">Risk Classification</span>
+                      </div>
+                      <span className="font-bold text-slate-heading tabular-nums">{r.count} Merchants ({pct}%)</span>
+                    </div>
+                    <div className="flex justify-between text-[11px] text-slate-muted mt-2">
+                      <span>Average Merchant Rating: ★ {r.avg_rating}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </ChartCard>
+          <ChartInsightBox
+            chartId="merchant_ecosystem"
+            chartTitle="Merchant Risk Level Distribution"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={riskMetrics}
+          />
+        </div>
+
+        {/* Rating vs Fraud Rate Correlation */}
+        <div className="flex flex-col">
+          <ChartCard
+            title="Merchant Rating vs. Fraud Rate Matrix"
+            subtitle="Correlation between public customer rating and detected fraud incident rates"
+            height={260}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data.rating_vs_fraud || []}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                <XAxis dataKey="merchant_rating" tick={{ fontSize: 10, fill: '#64748B' }} label={{ value: 'Star Rating', position: 'insideBottom', offset: -5, fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10, fill: '#64748B' }} unit="%" />
+                <Tooltip
+                  formatter={(val: any) => [`${Number(val).toFixed(2)}%`, 'Fraud Rate']}
+                  labelFormatter={(lbl) => `Rating: ★ ${lbl}`}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #E2E8F0' }}
+                />
+                <Line type="monotone" dataKey="fraud_rate_pct" name="Fraud Rate (%)" stroke="#EF4444" strokeWidth={2.5} dot={{ r: 4, fill: '#EF4444' }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartCard>
+          <ChartInsightBox
+            chartId="merchant_risk"
+            chartTitle="Merchant Rating vs. Fraud Rate Matrix"
+            timePeriod={timePeriodLabel}
+            summaryMetrics={ratingMetrics}
+          />
+        </div>
       </div>
 
       {/* Row 3: Top At-Risk Merchant Watchlist */}
@@ -219,13 +266,13 @@ export const MerchantEcosystemPage: React.FC<MerchantEcosystemPageProps> = ({
                     </div>
                   </td>
                   <td className="py-3 px-4 text-right font-medium text-slate-heading tabular-nums">
-                    {(m.total_txns || 0).toLocaleString()}
+                    {formatNumberIN(m.total_txns || 0)}
                   </td>
                   <td className="py-3 px-4 text-right font-bold text-danger tabular-nums">
-                    {(m.fraud_txns || 0).toLocaleString()}
+                    {formatNumberIN(m.fraud_txns || 0)}
                   </td>
                   <td className="py-3 px-4 text-right font-bold text-danger tabular-nums">
-                    ${(m.fraud_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    {formatExactCurrencyIN(m.fraud_amount || 0)}
                   </td>
                   <td className="py-3 px-4 text-right font-bold text-slate-heading tabular-nums">
                     {m.fraud_rate_pct}%

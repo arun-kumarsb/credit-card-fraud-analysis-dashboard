@@ -7,7 +7,9 @@ import {
   CustomerAnalyticsResponse,
   CardAnalyticsResponse,
   MerchantAnalyticsResponse,
-  DataQualityResponse
+  DataQualityResponse,
+  ChartInsightRequest,
+  ChartInsightResponse
 } from '../types/api';
 
 const API_BASE = '/api';
@@ -138,6 +140,37 @@ export const api = {
   getDataQuality: async (): Promise<DataQualityResponse> => {
     const res = await fetch(`${API_BASE}/data-quality`);
     if (!res.ok) throw new Error(`Failed to load data quality: ${res.statusText}`);
+    return res.json();
+  },
+
+  // Gemini AI Insights Endpoints
+  getChartInsight: async (req: ChartInsightRequest): Promise<ChartInsightResponse> => {
+    const res = await fetch(`${API_BASE}/insights/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(req),
+    });
+    if (!res.ok) throw new Error(`Failed to generate chart insight: ${res.statusText}`);
+    return res.json();
+  },
+
+  getApiKeyStatus: async (): Promise<{ status: string; has_api_key: boolean; masked_key?: string }> => {
+    const res = await fetch(`${API_BASE}/insights/config`);
+    if (!res.ok) throw new Error('Failed to fetch API key status');
+    return res.json();
+  },
+
+  saveApiKey: async (apiKey: string): Promise<{ status: string; has_api_key: boolean; masked_key?: string }> => {
+    const res = await fetch(`${API_BASE}/insights/config`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ api_key: apiKey }),
+    });
+    if (!res.ok) throw new Error('Failed to save API key');
     return res.json();
   }
 };
